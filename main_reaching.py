@@ -4,25 +4,33 @@ import pandas as pd
 import os
 import time
 import matplotlib.pyplot as plt
+
 # For multithreading
 from threading import Thread, Lock
 import queue
+
 # For OpenCV
 import cv2
+
 # For GUI
 import tkinter as tk
 from tkinter import Label, Button, BooleanVar, Checkbutton, Text
+
 # For pygame
 import pygame
+
 # For reaching task
 from reaching import Reaching
 from stopwatch import StopWatch
 from filter_butter_online import FilterButter3
 import reaching_functions
+
 # For controlling computer cursor
 import pyautogui
+
 # For Mediapipe
 import mediapipe as mp
+
 # For training pca/autoencoder
 from compute_bomi_map import Autoencoder, PrincipalComponentAnalysis, compute_vaf
 
@@ -38,98 +46,156 @@ class MainApplication(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
         self.calibPath = os.path.dirname(os.path.abspath(__file__)) + "/calib/"
-        self.drPath = ''
+        self.drPath = ""
         self.num_joints = 0
         self.joints = np.zeros((5, 1))
-        self.dr_mode = 'ae'
+        self.dr_mode = "ae"
         self.font_size = 18
 
-        self.btn_num_joints = Button(parent, text="Select Joints", command=self.select_joints)
+        self.btn_num_joints = Button(
+            parent, text="Select Joints", command=self.select_joints
+        )
         self.btn_num_joints.config(font=("Arial", self.font_size))
-        self.btn_num_joints.grid(row=0, column=0, columnspan=2, padx=20, pady=30, sticky='nesw')
+        self.btn_num_joints["state"] = "disabled"
+        self.btn_num_joints.grid(
+            row=1, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
+        )
 
         # set checkboxes for selecting joints
         self.check_nose = BooleanVar()
         self.check1 = Checkbutton(win, text="Nose", variable=self.check_nose)
         self.check1.config(font=("Arial", self.font_size))
-        self.check1.grid(row=0, column=2, padx=(0, 40), pady=30, sticky='w')
+        self.check1.grid(row=1, column=2, padx=(0, 40), pady=30, sticky="w")
 
         self.check_eyes = BooleanVar()
         self.check2 = Checkbutton(win, text="Eyes", variable=self.check_eyes)
         self.check2.config(font=("Arial", self.font_size))
-        self.check2.grid(row=0, column=3, padx=(0, 40), pady=30, sticky='w')
+        self.check2.grid(row=1, column=3, padx=(0, 40), pady=30, sticky="w")
 
         self.check_shoulders = BooleanVar()
         self.check3 = Checkbutton(win, text="Shoulders", variable=self.check_shoulders)
         self.check3.config(font=("Arial", self.font_size))
-        self.check3.grid(row=0, column=4, padx=(0, 30), pady=30, sticky='w')
+        self.check3.grid(row=1, column=4, padx=(0, 30), pady=30, sticky="w")
 
         self.check_forefinger = BooleanVar()
-        self.check4 = Checkbutton(win, text="Right Forefinger",
-                                  variable=self.check_forefinger)
+        self.check4 = Checkbutton(
+            win, text="Right Forefinger", variable=self.check_forefinger
+        )
         self.check4.config(font=("Arial", self.font_size))
-        self.check4.grid(row=0, column=5, padx=(0, 20), pady=30, sticky='w')
+        self.check4.grid(row=1, column=5, padx=(0, 20), pady=30, sticky="w")
 
         self.check_fingers = BooleanVar()
         self.check5 = Checkbutton(win, text="Fingers", variable=self.check_fingers)
         self.check5.config(font=("Arial", self.font_size))
-        self.check5.grid(row=0, column=6, padx=(0, 20), pady=30, sticky='nesw')
+        self.check5.grid(row=1, column=6, padx=(0, 20), pady=30, sticky="nesw")
 
         self.btn_calib = Button(parent, text="Calibration", command=self.calibration)
         self.btn_calib["state"] = "disabled"
         self.btn_calib.config(font=("Arial", self.font_size))
-        self.btn_calib.grid(row=1, column=0, columnspan=2, padx=20, pady=(20, 30), sticky='nesw')
+        self.btn_calib.grid(
+            row=2, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+        )
         self.calib_duration = 30000
 
         # Calibration time remaining
-        self.lbl_calib = Label(win, text='Calibration time: ')
+        self.lbl_calib = Label(win, text="Calibration time: ")
         self.lbl_calib.config(font=("Arial", self.font_size))
-        self.lbl_calib.grid(row=1, column=2, columnspan=2, pady=(20, 30), sticky='w')
+        self.lbl_calib.grid(row=2, column=2, columnspan=2, pady=(20, 30), sticky="w")
 
         # BoMI map button and checkboxes
         self.btn_map = Button(parent, text="Calculate BoMI Map", command=self.train_map)
         self.btn_map["state"] = "disabled"
         self.btn_map.config(font=("Arial", self.font_size))
-        self.btn_map.grid(row=2, column=0, columnspan=2, padx=20, pady=(20, 30), sticky='nesw')
+        self.btn_map.grid(
+            row=3, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+        )
 
         self.check_pca = BooleanVar(value=True)
         self.check_pca1 = Checkbutton(win, text="PCA", variable=self.check_pca)
         self.check_pca1.config(font=("Arial", self.font_size))
-        self.check_pca1.grid(row=2, column=2, padx=(0, 20), pady=(20, 30), sticky='w')
+        self.check_pca1.grid(row=3, column=2, padx=(0, 20), pady=(20, 30), sticky="w")
 
         self.check_ae = BooleanVar()
         self.check_ae1 = Checkbutton(win, text="AE", variable=self.check_ae)
         self.check_ae1.config(font=("Arial", self.font_size))
-        self.check_ae1.grid(row=2, column=3, padx=(0, 20), pady=(20, 30), sticky='w')
+        self.check_ae1.grid(row=3, column=3, padx=(0, 20), pady=(20, 30), sticky="w")
 
         self.check_vae = BooleanVar()
-        self.check_vae1 = Checkbutton(win, text="Variational AE", variable=self.check_vae)
+        self.check_vae1 = Checkbutton(
+            win, text="Variational AE", variable=self.check_vae
+        )
         self.check_vae1.config(font=("Arial", self.font_size))
-        self.check_vae1.grid(row=2, column=4, pady=(20, 30), sticky='w')
+        self.check_vae1.grid(row=3, column=4, pady=(20, 30), sticky="w")
 
-        self.btn_custom = Button(parent, text="Customization", command=self.customization)
+        self.btn_custom = Button(
+            parent, text="Customization", command=self.customization
+        )
         self.btn_custom["state"] = "disabled"
         self.btn_custom.config(font=("Arial", self.font_size))
-        self.btn_custom.grid(row=3, column=0, columnspan=2, padx=20, pady=(20, 30), sticky='nesw')
+        self.btn_custom.grid(
+            row=4, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+        )
 
         self.btn_start = Button(parent, text="Practice", command=self.start)
         self.btn_start["state"] = "disabled"
         self.btn_start.config(font=("Arial", self.font_size))
-        self.btn_start.grid(row=4, column=0, columnspan=2, padx=20, pady=(20, 30), sticky='nesw')
+        self.btn_start.grid(
+            row=5, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+        )
 
         # set label for number of target remaining
-        self.lbl_tgt = Label(win, text='Remaining targets: ')
+        self.lbl_tgt = Label(win, text="Remaining targets: ")
         self.lbl_tgt.config(font=("Arial", self.font_size))
-        self.lbl_tgt.grid(row=4, column=2, pady=(20, 30), columnspan=2, sticky='w')
+        self.lbl_tgt.grid(row=5, column=2, pady=(20, 30), columnspan=2, sticky="w")
 
         # !!!!!!!!!!!!! [ADD CODE HERE] Mouse control checkbox !!!!!!!!!!!!!
-        
+
+        # The Button to select the Mouse to control (Virtual/Real)
+        self.mouse_control = Button(
+            parent, text="Select Mouse", command=self.select_mouse
+        )
+        self.mouse_control.config(font=("Arial", self.font_size))
+        self.mouse_control.grid(
+            row=0, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
+        )
+
+        # Real Mouse checkbox
+        self.real_mouse = BooleanVar()
+        self.real_mouse_ = Checkbutton(win, text="Real Mouse", variable=self.real_mouse)
+        self.real_mouse_.config(font=("Arial", self.font_size))
+        self.real_mouse_.grid(row=0, column=2, padx=(0, 40), pady=30, sticky="w")
+
+        # Virtual Mouse checkbox
+        self.virtual_mouse = BooleanVar()
+        self.virtual_mouse_ = Checkbutton(
+            win, text="Virtual Mouse", variable=self.virtual_mouse
+        )
+        self.virtual_mouse_.config(font=("Arial", self.font_size))
+        self.virtual_mouse_.grid(row=0, column=3, padx=(0, 40), pady=30, sticky="w")
 
         #############################################################
 
         self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
         self.btn_close.config(font=("Arial", self.font_size))
-        self.btn_close.grid(row=8, column=0, columnspan=2, padx=20, pady=(20, 30), sticky='nesw')
+        self.btn_close.grid(
+            row=6, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+        )
+
+    def select_mouse(self):
+        """Mouse selection callback function"""
+        if self.real_mouse.get() == True and self.virtual_mouse.get() == True:
+            # self.btn_num_joints["state"] = "disabled"
+            print("You need to pick only one of the options")
+
+        elif self.real_mouse.get() == False and self.virtual_mouse.get() == False:
+            # self.btn_num_joints["state"] = "disabled"
+            print("You need to pick one of the options")
+        else:
+            self.btn_num_joints["state"] = "normal"
+            if self.real_mouse.get():
+                print("You have picked the Real Mouse")
+            elif self.virtual_mouse.get():
+                print("You have picked the Virtual Mouse")
 
     # Count number of joints selected
     def select_joints(self):
@@ -158,13 +224,19 @@ class MainApplication(tk.Frame):
             self.btn_map["state"] = "normal"
             self.btn_custom["state"] = "normal"
             self.btn_start["state"] = "normal"
-            print('Joints correctly selected.')
+            print("Joints correctly selected.")
 
     def calibration(self):
         # start calibration dance - collect webcam data
         self.w = popupWindow(self.master, "You will now start calibration.")
         self.master.wait_window(self.w.top)
-        compute_calibration(self.calibPath, self.calib_duration, self.lbl_calib, self.num_joints, self.joints)
+        compute_calibration(
+            self.calibPath,
+            self.calib_duration,
+            self.lbl_calib,
+            self.num_joints,
+            self.joints,
+        )
         self.btn_map["state"] = "normal"
 
     def train_map(self):
@@ -173,17 +245,17 @@ class MainApplication(tk.Frame):
             self.w = popupWindow(self.master, "You will now train BoMI map")
             self.master.wait_window(self.w.top)
             if self.check_pca.get():
-                self.drPath = self.calibPath + 'PCA/'
+                self.drPath = self.calibPath + "PCA/"
                 train_pca(self.calibPath, self.drPath)
-                self.dr_mode = 'pca'
+                self.dr_mode = "pca"
             elif self.check_ae.get():
-                self.drPath = self.calibPath + 'AE/'
+                self.drPath = self.calibPath + "AE/"
                 train_ae(self.calibPath, self.drPath)
-                self.dr_mode = 'ae'
+                self.dr_mode = "ae"
             elif self.check_vae.get():
-                self.drPath = self.calibPath + 'AE/'
+                self.drPath = self.calibPath + "AE/"
                 train_ae(self.calibPath, self.drPath)
-                self.dr_mode = 'ae'
+                self.dr_mode = "ae"
             self.btn_custom["state"] = "normal"
         else:
             self.w = popupWindow(self.master, "Perform calibration first.")
@@ -197,8 +269,14 @@ class MainApplication(tk.Frame):
             self.newWindow = tk.Toplevel(self.master)
             self.newWindow.geometry("1000x500")
             self.newWindow.title("Customization")
-            self.app = CustomizationApplication(self.newWindow, self, drPath=self.drPath, num_joints=self.num_joints,
-                                                joints=self.joints, dr_mode=self.dr_mode)
+            self.app = CustomizationApplication(
+                self.newWindow,
+                self,
+                drPath=self.drPath,
+                num_joints=self.num_joints,
+                joints=self.joints,
+                dr_mode=self.dr_mode,
+            )
         else:
             self.w = popupWindow(self.master, "Compute BoMI map first.")
             self.master.wait_window(self.w.top)
@@ -210,7 +288,9 @@ class MainApplication(tk.Frame):
             # open pygame and start reaching task
             self.w = popupWindow(self.master, "You will now start practice.")
             self.master.wait_window(self.w.top)
-            start_reaching(self.drPath, self.lbl_tgt, self.num_joints, self.joints, self.dr_mode)
+            start_reaching(
+                self.drPath, self.lbl_tgt, self.num_joints, self.joints, self.dr_mode
+            )
             # [ADD CODE HERE: one of the argument of start reaching should be [self.check_mouse]
             # to check in the checkbox is enable] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else:
@@ -234,57 +314,59 @@ class CustomizationApplication(tk.Frame):
         self.dr_mode = dr_mode
         self.font_size = 18
 
-        self.lbl_rot = Label(parent, text='Rotation ')
+        self.lbl_rot = Label(parent, text="Rotation ")
         self.lbl_rot.config(font=("Arial", self.font_size))
-        self.lbl_rot.grid(column=0, row=0, padx=(300, 0), pady=(40, 20), sticky='w')
+        self.lbl_rot.grid(column=0, row=0, padx=(300, 0), pady=(40, 20), sticky="w")
         self.txt_rot = Text(parent, width=10, height=1)
         self.txt_rot.config(font=("Arial", self.font_size))
         self.txt_rot.grid(column=1, row=0, pady=(40, 20))
-        self.txt_rot.insert("1.0", '0')
+        self.txt_rot.insert("1.0", "0")
 
-        self.lbl_gx = Label(parent, text='Gain x ')
+        self.lbl_gx = Label(parent, text="Gain x ")
         self.lbl_gx.config(font=("Arial", self.font_size))
-        self.lbl_gx.grid(column=0, row=1, padx=(300, 0), pady=(40, 20), sticky='w')
+        self.lbl_gx.grid(column=0, row=1, padx=(300, 0), pady=(40, 20), sticky="w")
         self.txt_gx = Text(parent, width=10, height=1)
         self.txt_gx.config(font=("Arial", self.font_size))
         self.txt_gx.grid(column=1, row=1, pady=(40, 20))
-        self.txt_gx.insert("1.0", '1')
+        self.txt_gx.insert("1.0", "1")
 
-        self.lbl_gy = Label(parent, text='Gain y ')
+        self.lbl_gy = Label(parent, text="Gain y ")
         self.lbl_gy.config(font=("Arial", self.font_size))
-        self.lbl_gy.grid(column=0, row=2, padx=(300, 0), pady=(40, 20), sticky='w')
+        self.lbl_gy.grid(column=0, row=2, padx=(300, 0), pady=(40, 20), sticky="w")
         self.txt_gy = Text(parent, width=10, height=1)
         self.txt_gy.config(font=("Arial", self.font_size))
         self.txt_gy.grid(column=1, row=2, pady=(40, 20))
-        self.txt_gy.insert("1.0", '1')
+        self.txt_gy.insert("1.0", "1")
 
-        self.lbl_ox = Label(parent, text='Offset x ')
+        self.lbl_ox = Label(parent, text="Offset x ")
         self.lbl_ox.config(font=("Arial", self.font_size))
-        self.lbl_ox.grid(column=0, row=3, padx=(300, 0), pady=(40, 20), sticky='w')
+        self.lbl_ox.grid(column=0, row=3, padx=(300, 0), pady=(40, 20), sticky="w")
         self.txt_ox = Text(parent, width=10, height=1)
         self.txt_ox.config(font=("Arial", self.font_size))
         self.txt_ox.grid(column=1, row=3, pady=(40, 20))
-        self.txt_ox.insert("1.0", '0')
+        self.txt_ox.insert("1.0", "0")
 
-        self.lbl_oy = Label(parent, text='Offset y ')
+        self.lbl_oy = Label(parent, text="Offset y ")
         self.lbl_oy.config(font=("Arial", self.font_size))
-        self.lbl_oy.grid(column=0, row=4, padx=(300, 0), pady=(40, 20), sticky='w')
+        self.lbl_oy.grid(column=0, row=4, padx=(300, 0), pady=(40, 20), sticky="w")
         self.txt_oy = Text(parent, width=10, height=1)
         self.txt_oy.config(font=("Arial", self.font_size))
         self.txt_oy.grid(column=1, row=4, pady=(40, 20))
-        self.txt_oy.insert("1.0", '0')
+        self.txt_oy.insert("1.0", "0")
 
-        self.btn_save = Button(parent, text="Save parameters", command=self.save_parameters)
+        self.btn_save = Button(
+            parent, text="Save parameters", command=self.save_parameters
+        )
         self.btn_save.config(font=("Arial", self.font_size))
-        self.btn_save.grid(column=2, row=1, sticky='nesw', padx=(80, 0), pady=(40, 20))
+        self.btn_save.grid(column=2, row=1, sticky="nesw", padx=(80, 0), pady=(40, 20))
 
         self.btn_start = Button(parent, text="Start", command=self.customization)
         self.btn_start.config(font=("Arial", self.font_size))
-        self.btn_start.grid(column=2, row=2, sticky='nesw', padx=(80, 0), pady=(40, 20))
+        self.btn_start.grid(column=2, row=2, sticky="nesw", padx=(80, 0), pady=(40, 20))
 
-        self.btn_close = Button(parent, text="Close", command=parent.destroy, bg='red')
+        self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
         self.btn_close.config(font=("Arial", self.font_size))
-        self.btn_close.grid(column=2, row=3, sticky='nesw', padx=(80, 0), pady=(40, 20))
+        self.btn_close.grid(column=2, row=3, sticky="nesw", padx=(80, 0), pady=(40, 20))
 
     # functions to retrieve values of textbox programmatically
     def retrieve_txt_rot(self):
@@ -303,7 +385,9 @@ class CustomizationApplication(tk.Frame):
         return self.txt_oy.get("1.0", "end-1c")
 
     def customization(self):
-        initialize_customization(self, self.dr_mode, self.drPath, self.num_joints, self.joints)
+        initialize_customization(
+            self, self.dr_mode, self.drPath, self.num_joints, self.joints
+        )
 
     def save_parameters(self):
         save_parameters(self, self.drPath)
@@ -320,7 +404,7 @@ class popupWindow(object):
         top = self.top = tk.Toplevel(master)
         self.lbl = Label(top, text=msg)
         self.lbl.pack()
-        self.btn = Button(top, text='Ok', command=self.cleanup)
+        self.btn = Button(top, text="Ok", command=self.cleanup)
         self.btn.pack()
 
     def cleanup(self):
@@ -345,8 +429,11 @@ def compute_calibration(drPath, calib_duration, lbl_calib, num_joints, joints):
 
     # initialize MediaPipe Pose
     mp_holistic = mp.solutions.holistic
-    holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5,
-                                    smooth_landmarks=False)
+    holistic = mp_holistic.Holistic(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+        smooth_landmarks=False,
+    )
 
     # initialize lock for avoiding race conditions in threads
     lock = Lock()
@@ -354,7 +441,9 @@ def compute_calibration(drPath, calib_duration, lbl_calib, num_joints, joints):
     # global variable accessed by main and mediapipe threads that contains the current vector of body landmarks
     global body
     body = np.zeros((num_joints,))  # initialize global variable
-    body_calib = []  # initialize local variable (list of body landmarks during calibration)
+    body_calib = (
+        []
+    )  # initialize local variable (list of body landmarks during calibration)
 
     # start thread for OpenCV. current frame will be appended in a queue in a separate thread
     q_frame = queue.Queue()
@@ -364,8 +453,10 @@ def compute_calibration(drPath, calib_duration, lbl_calib, num_joints, joints):
     print("openCV thread started in calibration.")
 
     # initialize thread for mediapipe operations
-    mediapipe_thread = Thread(target=mediapipe_forwardpass,
-                              args=(holistic, mp_holistic, lock, q_frame, r, num_joints, joints))
+    mediapipe_thread = Thread(
+        target=mediapipe_forwardpass,
+        args=(holistic, mp_holistic, lock, q_frame, r, num_joints, joints),
+    )
     mediapipe_thread.start()
     print("mediapipe thread started in calibration.")
 
@@ -384,7 +475,7 @@ def compute_calibration(drPath, calib_duration, lbl_calib, num_joints, joints):
 
         # update time elapsed label
         time_remaining = int((calib_duration - timer_calib.elapsed_time) / 1000)
-        lbl_calib.configure(text='Calibration time: ' + str(time_remaining))
+        lbl_calib.configure(text="Calibration time: " + str(time_remaining))
         lbl_calib.update()
 
         # --- Limit to 50 frames per second
@@ -403,7 +494,7 @@ def compute_calibration(drPath, calib_duration, lbl_calib, num_joints, joints):
         os.makedirs(drPath)
     np.savetxt(drPath + "Calib.txt", body_calib)
 
-    print('Calibration finished. You can now train BoMI forward map.')
+    print("Calibration finished. You can now train BoMI forward map.")
 
 
 def train_pca(calibPath, drPath):
@@ -414,7 +505,7 @@ def train_pca(calibPath, drPath):
     """
     r = Reaching()
     # read calibration file and remove all the initial zero rows
-    xp = list(pd.read_csv(calibPath + 'Calib.txt', sep=' ', header=None).values)
+    xp = list(pd.read_csv(calibPath + "Calib.txt", sep=" ", header=None).values)
     x = [i for i in xp if all(i)]
     x = np.array(x)
 
@@ -432,46 +523,55 @@ def train_pca(calibPath, drPath):
     PCA = PrincipalComponentAnalysis(n_pc)
 
     # train PCA
-    pca, train_x_rec, train_pc, test_x_rec, test_pc = PCA.train_pca(train_x, x_test=test_x)
-    print('PCA has been trained.')
+    pca, train_x_rec, train_pc, test_x_rec, test_pc = PCA.train_pca(
+        train_x, x_test=test_x
+    )
+    print("PCA has been trained.")
 
     # save weights and biases
     if not os.path.exists(drPath):
         os.makedirs(drPath)
     np.savetxt(drPath + "weights1.txt", pca.components_[:, :2])
 
-    print('BoMI forward map (PCA parameters) has been saved.')
+    print("BoMI forward map (PCA parameters) has been saved.")
 
     # compute train/test VAF
-    print(f'Training VAF: {compute_vaf(train_x, train_x_rec)}')
-    print(f'Test VAF: {compute_vaf(test_x, test_x_rec)}')
+    print(f"Training VAF: {compute_vaf(train_x, train_x_rec)}")
+    print(f"Test VAF: {compute_vaf(test_x, test_x_rec)}")
 
     # normalize latent space to fit the monitor coordinates
     # Applying rotation
     train_pc = np.dot(train_x, pca.components_[:, :2])
     rot = 0
-    train_pc[0] = train_pc[0] * np.cos(np.pi / 180 * rot) - train_pc[1] * np.sin(np.pi / 180 * rot)
-    train_pc[1] = train_pc[0] * np.sin(np.pi / 180 * rot) + train_pc[1] * np.cos(np.pi / 180 * rot)
+    train_pc[0] = train_pc[0] * np.cos(np.pi / 180 * rot) - train_pc[1] * np.sin(
+        np.pi / 180 * rot
+    )
+    train_pc[1] = train_pc[0] * np.sin(np.pi / 180 * rot) + train_pc[1] * np.cos(
+        np.pi / 180 * rot
+    )
     # Applying scale
     scale = [r.width / np.ptp(train_pc[:, 0]), r.height / np.ptp(train_pc[:, 1])]
     train_pc = train_pc * scale
     # Applying offset
-    off = [r.width / 2 - np.mean(train_pc[:, 0]), r.height / 2 - np.mean(train_pc[:, 1])]
+    off = [
+        r.width / 2 - np.mean(train_pc[:, 0]),
+        r.height / 2 - np.mean(train_pc[:, 1]),
+    ]
     train_pc = train_pc + off
 
     # Plot latent space
     plt.figure()
-    plt.scatter(train_pc[:, 0], train_pc[:, 1], c='green', s=20)
-    plt.title('Projections in workspace')
+    plt.scatter(train_pc[:, 0], train_pc[:, 1], c="green", s=20)
+    plt.title("Projections in workspace")
     plt.axis("equal")
 
     # save AE scaling values
-    with open(drPath + "rotation_dr.txt", 'w') as f:
+    with open(drPath + "rotation_dr.txt", "w") as f:
         print(rot, file=f)
     np.savetxt(drPath + "scale_dr.txt", scale)
     np.savetxt(drPath + "offset_dr.txt", off)
 
-    print('PCA scaling values has been saved. You can continue with customization.')
+    print("PCA scaling values has been saved. You can continue with customization.")
 
 
 def train_ae(calibPath, drPath):
@@ -490,7 +590,7 @@ def train_ae(calibPath, drPath):
     activ = "tanh"
 
     # read calibration file and remove all the initial zero rows
-    xp = list(pd.read_csv(calibPath + 'Calib.txt', sep=' ', header=None).values)
+    xp = list(pd.read_csv(calibPath + "Calib.txt", sep=" ", header=None).values)
     x = [i for i in xp if all(i)]
     x = np.array(x)
 
@@ -507,9 +607,11 @@ def train_ae(calibPath, drPath):
     AE = Autoencoder(n_steps, lr, cu, activation=activ, nh1=nh1, seed=0)
 
     # train AE network
-    history, ws, bs, train_x_rec, train_cu, test_x_rec, test_cu = AE.train_network(train_x, x_test=test_x)
+    history, ws, bs, train_x_rec, train_cu, test_x_rec, test_cu = AE.train_network(
+        train_x, x_test=test_x
+    )
     # history, ws, bs, train_x_rec, train_cu, test_x_rec, test_cu = AE.train_vae(train_x, beta=0.00035, x_test=test_x)
-    print('AE has been trained.')
+    print("AE has been trained.")
 
     # save weights and biases
     if not os.path.exists(drPath):
@@ -518,53 +620,60 @@ def train_ae(calibPath, drPath):
         np.savetxt(drPath + "weights" + str(layer + 1) + ".txt", ws[layer])
         np.savetxt(drPath + "biases" + str(layer + 1) + ".txt", bs[layer])
 
-    print('BoMI forward map (AE parameters) has been saved.')
+    print("BoMI forward map (AE parameters) has been saved.")
 
     # compute train/test VAF
-    print(f'Training VAF: {compute_vaf(train_x, train_x_rec)}')
-    print(f'Test VAF: {compute_vaf(test_x, test_x_rec)}')
+    print(f"Training VAF: {compute_vaf(train_x, train_x_rec)}")
+    print(f"Test VAF: {compute_vaf(test_x, test_x_rec)}")
 
     # normalize latent space to fit the monitor coordinates
     # Applying rotation
     rot = 0
-    train_cu[0] = train_cu[0] * np.cos(np.pi / 180 * rot) - train_cu[1] * np.sin(np.pi / 180 * rot)
-    train_cu[1] = train_cu[0] * np.sin(np.pi / 180 * rot) + train_cu[1] * np.cos(np.pi / 180 * rot)
+    train_cu[0] = train_cu[0] * np.cos(np.pi / 180 * rot) - train_cu[1] * np.sin(
+        np.pi / 180 * rot
+    )
+    train_cu[1] = train_cu[0] * np.sin(np.pi / 180 * rot) + train_cu[1] * np.cos(
+        np.pi / 180 * rot
+    )
     # Applying scale
     scale = [r.width / np.ptp(train_cu[:, 0]), r.height / np.ptp(train_cu[:, 1])]
     train_cu = train_cu * scale
     # Applying offset
-    off = [r.width / 2 - np.mean(train_cu[:, 0]), r.height / 2 - np.mean(train_cu[:, 1])]
+    off = [
+        r.width / 2 - np.mean(train_cu[:, 0]),
+        r.height / 2 - np.mean(train_cu[:, 1]),
+    ]
     train_cu = train_cu + off
 
     # Plot latent space
     plt.figure()
-    plt.scatter(train_cu[:, 0], train_cu[:, 1], c='green', s=20)
-    plt.title('Projections in workspace')
+    plt.scatter(train_cu[:, 0], train_cu[:, 1], c="green", s=20)
+    plt.title("Projections in workspace")
     plt.axis("equal")
 
     # save AE scaling values
-    with open(drPath + "rotation_dr.txt", 'w') as f:
+    with open(drPath + "rotation_dr.txt", "w") as f:
         print(rot, file=f)
     np.savetxt(drPath + "scale_dr.txt", scale)
     np.savetxt(drPath + "offset_dr.txt", off)
 
-    print('AE scaling values has been saved. You can continue with customization.')
+    print("AE scaling values has been saved. You can continue with customization.")
 
 
 def load_bomi_map(dr_mode, drPath):
-    if dr_mode == 'pca':
-        map = pd.read_csv(drPath + 'weights1.txt', sep=' ', header=None).values
-    elif dr_mode == 'ae':
+    if dr_mode == "pca":
+        map = pd.read_csv(drPath + "weights1.txt", sep=" ", header=None).values
+    elif dr_mode == "ae":
         ws = []
         bs = []
-        ws.append(pd.read_csv(drPath + 'weights1.txt', sep=' ', header=None).values)
-        ws.append(pd.read_csv(drPath + 'weights2.txt', sep=' ', header=None).values)
-        ws.append(pd.read_csv(drPath + 'weights3.txt', sep=' ', header=None).values)
-        bs.append(pd.read_csv(drPath + 'biases1.txt', sep=' ', header=None).values)
+        ws.append(pd.read_csv(drPath + "weights1.txt", sep=" ", header=None).values)
+        ws.append(pd.read_csv(drPath + "weights2.txt", sep=" ", header=None).values)
+        ws.append(pd.read_csv(drPath + "weights3.txt", sep=" ", header=None).values)
+        bs.append(pd.read_csv(drPath + "biases1.txt", sep=" ", header=None).values)
         bs[0] = bs[0].reshape((bs[0].size,))
-        bs.append(pd.read_csv(drPath + 'biases2.txt', sep=' ', header=None).values)
+        bs.append(pd.read_csv(drPath + "biases2.txt", sep=" ", header=None).values)
         bs[1] = bs[1].reshape((bs[1].size,))
-        bs.append(pd.read_csv(drPath + 'biases3.txt', sep=' ', header=None).values)
+        bs.append(pd.read_csv(drPath + "biases3.txt", sep=" ", header=None).values)
         bs[2] = bs[2].reshape((bs[2].size,))
 
         map = (ws, bs)
@@ -593,14 +702,17 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
 
     # initialize MediaPipe Pose
     mp_holistic = mp.solutions.holistic
-    holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5,
-                                    smooth_landmarks=False)
+    holistic = mp_holistic.Holistic(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+        smooth_landmarks=False,
+    )
 
     # load scaling values saved after training AE for covering entire monitor workspace
-    rot = pd.read_csv(drPath + 'rotation_dr.txt', sep=' ', header=None).values
-    scale = pd.read_csv(drPath + 'scale_dr.txt', sep=' ', header=None).values
+    rot = pd.read_csv(drPath + "rotation_dr.txt", sep=" ", header=None).values
+    scale = pd.read_csv(drPath + "scale_dr.txt", sep=" ", header=None).values
     scale = np.reshape(scale, (scale.shape[0],))
-    off = pd.read_csv(drPath + 'offset_dr.txt', sep=' ', header=None).values
+    off = pd.read_csv(drPath + "offset_dr.txt", sep=" ", header=None).values
     off = np.reshape(off, (off.shape[0],))
 
     # initialize lock for avoiding race conditions in threads
@@ -618,8 +730,10 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
     print("openCV thread started in customization.")
 
     # initialize thread for mediapipe operations
-    mediapipe_thread = Thread(target=mediapipe_forwardpass,
-                              args=(holistic, mp_holistic, lock, q_frame, r, num_joints, joints))
+    mediapipe_thread = Thread(
+        target=mediapipe_forwardpass,
+        args=(holistic, mp_holistic, lock, q_frame, r, num_joints, joints),
+    )
     mediapipe_thread.start()
     print("mediapipe thread started in customization.")
 
@@ -647,7 +761,9 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_x:  # Pressing the x Key will quit the game
                     r.is_terminated = True
-                if event.key == pygame.K_SPACE:  # Pressing the space Key will click the mouse
+                if (
+                    event.key == pygame.K_SPACE
+                ):  # Pressing the space Key will click the mouse
                     pyautogui.click(r.crs_x, r.crs_y)
 
         if not r.is_paused:
@@ -659,7 +775,9 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
             r.body = np.copy(body)
 
             # apply BoMI forward map to body vector to obtain cursor position
-            r.crs_x, r.crs_y = reaching_functions.update_cursor_position_custom(r.body, map, rot, scale, off)
+            r.crs_x, r.crs_y = reaching_functions.update_cursor_position_custom(
+                r.body, map, rot, scale, off
+            )
 
             # Apply extra customization according to textbox values (try/except allows to catch invalid inputs)
             try:
@@ -684,8 +802,12 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
                 oy_custom = 0
 
             # Applying rotation
-            r.crs_x = r.crs_x * np.cos(np.pi / 180 * rot_custom) - r.crs_y * np.sin(np.pi / 180 * rot_custom)
-            r.crs_y = r.crs_x * np.sin(np.pi / 180 * rot_custom) + r.crs_y * np.cos(np.pi / 180 * rot_custom)
+            r.crs_x = r.crs_x * np.cos(np.pi / 180 * rot_custom) - r.crs_y * np.sin(
+                np.pi / 180 * rot_custom
+            )
+            r.crs_y = r.crs_x * np.sin(np.pi / 180 * rot_custom) + r.crs_y * np.cos(
+                np.pi / 180 * rot_custom
+            )
             # Applying scale
             r.crs_x = r.crs_x * gx_custom
             r.crs_y = r.crs_y * gy_custom
@@ -713,13 +835,17 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
             screen.fill(BLACK)
 
             # draw cursor
-            pygame.draw.circle(screen, CURSOR, (int(r.crs_x), int(r.crs_y)), r.crs_radius)
+            pygame.draw.circle(
+                screen, CURSOR, (int(r.crs_x), int(r.crs_y)), r.crs_radius
+            )
 
             # draw each test target
             for i in range(8):
                 tgt_x = r.tgt_x_list[r.list_tgt[i]]
                 tgt_y = r.tgt_y_list[r.list_tgt[i]]
-                pygame.draw.circle(screen, GREEN, (int(tgt_x), int(tgt_y)), r.tgt_radius, 2)
+                pygame.draw.circle(
+                    screen, GREEN, (int(tgt_x), int(tgt_y)), r.tgt_radius, 2
+                )
 
             # --- update the screen with what we've drawn.
             pygame.display.flip()
@@ -735,6 +861,7 @@ def initialize_customization(self, dr_mode, drPath, num_joints, joints):
     cap.release()
     cv2.destroyAllWindows()
     print("openCV object released in customization.")
+
 
 def save_parameters(self, drPath):
     """
@@ -753,12 +880,13 @@ def save_parameters(self, drPath):
     off = [ox_custom, oy_custom]
 
     # save customization values
-    with open(drPath + "rotation_custom.txt", 'w') as f:
+    with open(drPath + "rotation_custom.txt", "w") as f:
         print(rot, file=f)
     np.savetxt(drPath + "scale_custom.txt", scale)
     np.savetxt(drPath + "offset_custom.txt", off)
 
-    print('Customization values have been saved. You can continue with practice.')
+    print("Customization values have been saved. You can continue with practice.")
+
 
 # [ADD CODE HERE: check_mouse as function input]
 def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
@@ -809,19 +937,24 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
 
     # initialize MediaPipe Pose
     mp_holistic = mp.solutions.holistic
-    holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5,
-                                    smooth_landmarks=False)
+    holistic = mp_holistic.Holistic(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+        smooth_landmarks=False,
+    )
 
     # load scaling values for covering entire monitor workspace
-    rot_dr = pd.read_csv(drPath + 'rotation_dr.txt', sep=' ', header=None).values
-    scale_dr = pd.read_csv(drPath + 'scale_dr.txt', sep=' ', header=None).values
+    rot_dr = pd.read_csv(drPath + "rotation_dr.txt", sep=" ", header=None).values
+    scale_dr = pd.read_csv(drPath + "scale_dr.txt", sep=" ", header=None).values
     scale_dr = np.reshape(scale_dr, (scale_dr.shape[0],))
-    off_dr = pd.read_csv(drPath + 'offset_dr.txt', sep=' ', header=None).values
+    off_dr = pd.read_csv(drPath + "offset_dr.txt", sep=" ", header=None).values
     off_dr = np.reshape(off_dr, (off_dr.shape[0],))
-    rot_custom = pd.read_csv(drPath + 'rotation_custom.txt', sep=' ', header=None).values
-    scale_custom = pd.read_csv(drPath + 'scale_custom.txt', sep=' ', header=None).values
+    rot_custom = pd.read_csv(
+        drPath + "rotation_custom.txt", sep=" ", header=None
+    ).values
+    scale_custom = pd.read_csv(drPath + "scale_custom.txt", sep=" ", header=None).values
     scale_custom = np.reshape(scale_custom, (scale_custom.shape[0],))
-    off_custom = pd.read_csv(drPath + 'offset_custom.txt', sep=' ', header=None).values
+    off_custom = pd.read_csv(drPath + "offset_custom.txt", sep=" ", header=None).values
     off_custom = np.reshape(off_custom, (off_custom.shape[0],))
 
     # initialize lock for avoiding race conditions in threads
@@ -839,8 +972,10 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
     print("openCV thread started in practice.")
 
     # initialize thread for mediapipe operations
-    mediapipe_thread = Thread(target=mediapipe_forwardpass,
-                              args=(holistic, mp_holistic, lock, q_frame, r, num_joints, joints))
+    mediapipe_thread = Thread(
+        target=mediapipe_forwardpass,
+        args=(holistic, mp_holistic, lock, q_frame, r, num_joints, joints),
+    )
     mediapipe_thread.start()
     print("mediapipe thread started in practice.")
 
@@ -861,9 +996,13 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_x:  # Pressing the x Key will quit the game
                     r.is_terminated = True
-                if event.key == pygame.K_p:  # Pressing the p Key will pause/resume the game
+                if (
+                    event.key == pygame.K_p
+                ):  # Pressing the p Key will pause/resume the game
                     reaching_functions.pause_acquisition(r, timer_practice)
-                if event.key == pygame.K_SPACE:  # Pressing the space Key will click the mouse
+                if (
+                    event.key == pygame.K_SPACE
+                ):  # Pressing the space Key will click the mouse
                     pyautogui.click(r.crs_x, r.crs_y)
 
         if not r.is_paused:
@@ -875,8 +1014,16 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
             r.body = np.copy(body)
 
             # apply BoMI forward map to body vector to obtain cursor position.
-            r.crs_x, r.crs_y = reaching_functions.update_cursor_position \
-                (r.body, map, rot_dr, scale_dr, off_dr, rot_custom, scale_custom, off_custom)
+            r.crs_x, r.crs_y = reaching_functions.update_cursor_position(
+                r.body,
+                map,
+                rot_dr,
+                scale_dr,
+                off_dr,
+                rot_custom,
+                scale_custom,
+                off_custom,
+            )
 
             # Check if the crs is bouncing against any of the 4 walls:
             if r.crs_x >= r.width:
@@ -895,7 +1042,6 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
             # only change coordinates of the computer cursor !!!!!!!!!!!!!!!!!!!!!
             # [ADD CODE HERE] !!!!!!!!!!!!!!!!!!!!!
 
-
             # else: do the reaching
 
             # Set target position to update the GUI
@@ -905,18 +1051,28 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
             # Do not show the cursor in the blind trials when the cursor is outside the home target
             if not r.is_blind:
                 # draw cursor
-                pygame.draw.circle(screen, CURSOR, (int(r.crs_x), int(r.crs_y)), r.crs_radius)
+                pygame.draw.circle(
+                    screen, CURSOR, (int(r.crs_x), int(r.crs_y)), r.crs_radius
+                )
 
             # draw target. green if blind, state 0 or 1. yellow if notBlind and state 2
             if r.state == 0:  # green
-                pygame.draw.circle(screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2)
+                pygame.draw.circle(
+                    screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
+                )
             elif r.state == 1:
-                pygame.draw.circle(screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2)
+                pygame.draw.circle(
+                    screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
+                )
             elif r.state == 2:  # yellow
                 if r.is_blind:  # green again if blind trial
-                    pygame.draw.circle(screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2)
+                    pygame.draw.circle(
+                        screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
+                    )
                 else:  # yellow if not blind
-                    pygame.draw.circle(screen, YELLOW, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2)
+                    pygame.draw.circle(
+                        screen, YELLOW, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
+                    )
 
             # Display scores:
             font = pygame.font.Font(None, 80)
@@ -929,11 +1085,13 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
             # After showing the cursor, check whether cursor is in the target
             reaching_functions.check_target_reaching(r, timer_enter_tgt)
             # Then check if cursor stayed in the target for enough time
-            reaching_functions.check_time_reaching(r, timer_enter_tgt, timer_start_trial, timer_practice)
+            reaching_functions.check_time_reaching(
+                r, timer_enter_tgt, timer_start_trial, timer_practice
+            )
 
             # update label with number of targets remaining
             tgt_remaining = 248 - r.trial + 1
-            lbl_tgt.configure(text='Remaining targets: ' + str(tgt_remaining))
+            lbl_tgt.configure(text="Remaining targets: " + str(tgt_remaining))
             lbl_tgt.update()
 
             # --- Limit to 50 frames per second
@@ -951,20 +1109,20 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
 
 
 def get_data_from_camera(cap, q_frame, r, cal):
-    '''
+    """
     function that runs in the thread to capture current frame and put it into the queue
     :param cap: object of OpenCV class
     :param q_frame: queue to store current frame
     :param r: object of Reaching class
     :return:
-    '''
+    """
     while not r.is_terminated:
         if not r.is_paused:
             ret, frame = cap.read()
             q_frame.put(frame)
             # if cal == 1:
             #    cv2.imshow('current frame', frame)
-    print('OpenCV thread terminated.')
+    print("OpenCV thread terminated.")
 
 
 def mediapipe_forwardpass(holistic, mp_holistic, lock, q_frame, r, num_joints, joints):
@@ -995,30 +1153,102 @@ def mediapipe_forwardpass(holistic, mp_holistic, lock, q_frame, r, num_joints, j
             if not results.pose_landmarks:
                 continue
             if joints[0, 0] == 1:
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].x)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].y)
+                body_list.append(
+                    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].x
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].y
+                )
             if joints[1, 0] == 1:
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE].x)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE].y)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE].x)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE].y)
+                body_list.append(
+                    results.pose_landmarks.landmark[
+                        mp_holistic.PoseLandmark.RIGHT_EYE
+                    ].x
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[
+                        mp_holistic.PoseLandmark.RIGHT_EYE
+                    ].y
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE].x
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE].y
+                )
             if joints[2, 0] == 1:
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_SHOULDER].x)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_SHOULDER].y)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_SHOULDER].x)
-                body_list.append(results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_SHOULDER].y)
+                body_list.append(
+                    results.pose_landmarks.landmark[
+                        mp_holistic.PoseLandmark.RIGHT_SHOULDER
+                    ].x
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[
+                        mp_holistic.PoseLandmark.RIGHT_SHOULDER
+                    ].y
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[
+                        mp_holistic.PoseLandmark.LEFT_SHOULDER
+                    ].x
+                )
+                body_list.append(
+                    results.pose_landmarks.landmark[
+                        mp_holistic.PoseLandmark.LEFT_SHOULDER
+                    ].y
+                )
             if joints[3, 0] == 1 or joints[4, 0] == 1:
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.INDEX_FINGER_TIP].x)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.INDEX_FINGER_TIP].y)
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.INDEX_FINGER_TIP
+                    ].x
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.INDEX_FINGER_TIP
+                    ].y
+                )
             if joints[4, 0] == 1:
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.THUMB_TIP].x)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.THUMB_TIP].y)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.MIDDLE_FINGER_TIP].x)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.MIDDLE_FINGER_TIP].y)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.RING_FINGER_TIP].x)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.RING_FINGER_TIP].y)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.PINKY_TIP].x)
-                body_list.append(results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.PINKY_TIP].y)
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.THUMB_TIP
+                    ].x
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.THUMB_TIP
+                    ].y
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.MIDDLE_FINGER_TIP
+                    ].x
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.MIDDLE_FINGER_TIP
+                    ].y
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.RING_FINGER_TIP
+                    ].x
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.RING_FINGER_TIP
+                    ].y
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.PINKY_TIP
+                    ].x
+                )
+                body_list.append(
+                    results.right_hand_landmarks.landmark[
+                        mp_holistic.HandLandmark.PINKY_TIP
+                    ].y
+                )
 
             body_mp = np.array(body_list)
             q_frame.queue.clear()
@@ -1027,7 +1257,7 @@ def mediapipe_forwardpass(holistic, mp_holistic, lock, q_frame, r, num_joints, j
             # except:
             #     print('Expection in mediapipe_forwardpass. Closing thread')
             #     r.is_terminated = True
-    print('Mediapipe_forwardpass thread terminated.')
+    print("Mediapipe_forwardpass thread terminated.")
 
 
 def write_practice_files(r, timer_practice):
@@ -1041,11 +1271,36 @@ def write_practice_files(r, timer_practice):
         if not r.is_paused:
             starttime = time.time()
 
-            log = str(timer_practice.elapsed_time) + "\t" + '\t'.join(map(str, r.body)) + "\t" + str(r.crs_x) + "\t" + \
-                  str(r.crs_y) + "\t" + str(r.block) + "\t" + \
-                  str(r.repetition) + "\t" + str(r.target) + "\t" + str(r.trial) + "\t" + str(r.state) + "\t" + \
-                  str(r.comeback) + "\t" + str(r.is_blind) + "\t" + str(r.at_home) + "\t" + str(r.count_mouse) + "\t" + \
-                  str(r.score) + "\n"
+            log = (
+                str(timer_practice.elapsed_time)
+                + "\t"
+                + "\t".join(map(str, r.body))
+                + "\t"
+                + str(r.crs_x)
+                + "\t"
+                + str(r.crs_y)
+                + "\t"
+                + str(r.block)
+                + "\t"
+                + str(r.repetition)
+                + "\t"
+                + str(r.target)
+                + "\t"
+                + str(r.trial)
+                + "\t"
+                + str(r.state)
+                + "\t"
+                + str(r.comeback)
+                + "\t"
+                + str(r.is_blind)
+                + "\t"
+                + str(r.at_home)
+                + "\t"
+                + str(r.count_mouse)
+                + "\t"
+                + str(r.score)
+                + "\n"
+            )
 
             with open(r.path_log + "PracticeLog.txt", "a") as file_log:
                 file_log.write(log)
@@ -1053,7 +1308,7 @@ def write_practice_files(r, timer_practice):
             # write @ 50 Hz
             time.sleep(0.033 - ((time.time() - starttime) % 0.033))
 
-    print('Writing reaching log file thread terminated.')
+    print("Writing reaching log file thread terminated.")
 
 
 # CODE STARTS HERE
@@ -1071,7 +1326,9 @@ if __name__ == "__main__":
     x_cordinate = int((screen_width / 2) - (window_width / 2))
     y_cordinate = int((screen_height / 2) - (window_height / 2))
 
-    win.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
+    win.geometry(
+        "{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate)
+    )
 
     MainApplication(win)
 
