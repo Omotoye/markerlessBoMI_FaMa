@@ -27,6 +27,7 @@ import reaching_functions
 
 # For controlling computer cursor
 import pyautogui
+from get_res import get_display_size  # for getting the screen resolution of the machine
 
 # For Mediapipe
 import mediapipe as mp
@@ -193,8 +194,10 @@ class MainApplication(tk.Frame):
         else:
             self.btn_num_joints["state"] = "normal"
             if self.real_mouse.get():
+                self.check_mouse = True  # if the real mouse would be used
                 print("You have picked the Real Mouse")
             elif self.virtual_mouse.get():
+                self.check_mouse = False  # if the virtual mouse would be used
                 print("You have picked the Virtual Mouse")
 
     # Count number of joints selected
@@ -289,7 +292,12 @@ class MainApplication(tk.Frame):
             self.w = popupWindow(self.master, "You will now start practice.")
             self.master.wait_window(self.w.top)
             start_reaching(
-                self.drPath, self.lbl_tgt, self.num_joints, self.joints, self.dr_mode
+                self.drPath,
+                self.lbl_tgt,
+                self.num_joints,
+                self.joints,
+                self.dr_mode,
+                self.check_mouse,
             )
             # [ADD CODE HERE: one of the argument of start reaching should be [self.check_mouse]
             # to check in the checkbox is enable] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -889,7 +897,7 @@ def save_parameters(self, drPath):
 
 
 # [ADD CODE HERE: check_mouse as function input]
-def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
+def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     """
     function to perform online cursor control - practice
     :param drPath: path where to load the BoMI forward map and customization values
@@ -900,7 +908,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
     pygame.init()
 
     # [ADD CODE HERE] get value from checkbox - is mouse enabled? !!!!!!!!!!!!!!!!!!!
-
+    ## Callback function in use for this
     ############################################################
 
     # Define some colors
@@ -915,8 +923,12 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
     r = Reaching()
     filter_curs = FilterButter3("lowpass_4")
 
+    if check_mouse == True:
+        size = (1, 1)
+    else:
+        size = (r.width, r.height)
+
     # Open a new window
-    size = (r.width, r.height)
     screen = pygame.display.set_mode(size)
     # screen = pygame.display.toggle_fullscreen()
 
@@ -927,7 +939,6 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
     timer_enter_tgt = StopWatch()
     timer_start_trial = StopWatch()
     timer_practice = StopWatch()
-
     # initialize targets and the reaching log file header
     reaching_functions.initialize_targets(r)
     reaching_functions.write_header(r)
@@ -984,8 +995,11 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
     timer_practice.start()  # start the timer for PracticeLog
     wfile_thread.start()
     print("writing reaching log file thread started in practice.")
-
     print("cursor control thread is about to start...")
+
+    if check_mouse == True:
+        real_screen_width, real_screen_height = get_display_size()
+        pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
 
     # -------- Main Program Loop -----------
     while not r.is_terminated:
@@ -1041,61 +1055,73 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode):
             # if mouse checkbox was enabled do not draw the reaching GUI,
             # only change coordinates of the computer cursor !!!!!!!!!!!!!!!!!!!!!
             # [ADD CODE HERE] !!!!!!!!!!!!!!!!!!!!!
+            if check_mouse == True:
+                real_width = (r.crs_x / r.width) * real_screen_width
+                real_height = (r.crs_y / r.height) * real_screen_height
+                print(
+                    f"Virtual Mouse -  x: {r.crs_x}, y: {r.crs_y}\nReal Mouse - x: {real_width}, y: {real_height}\n\n"
+                )
+                pyautogui.moveTo(real_width, real_height)
 
             # else: do the reaching
 
-            # Set target position to update the GUI
-            reaching_functions.set_target_reaching(r)
-            # First, clear the screen to black. In between screen.fill and pygame.display.flip() all the draw
-            screen.fill(BLACK)
-            # Do not show the cursor in the blind trials when the cursor is outside the home target
-            if not r.is_blind:
-                # draw cursor
-                pygame.draw.circle(
-                    screen, CURSOR, (int(r.crs_x), int(r.crs_y)), r.crs_radius
-                )
+            else:
+                # Set target position to update the GUI
+                reaching_functions.set_target_reaching(r)
+                # First, clear the screen to black. In between screen.fill and pygame.display.flip() all the draw
+                screen.fill(BLACK)
+                # Do not show the cursor in the blind trials when the cursor is outside the home target
+                if not r.is_blind:
+                    # draw cursor
+                    pygame.draw.circle(
+                        screen, CURSOR, (int(r.crs_x), int(r.crs_y)), r.crs_radius
+                    )
 
-            # draw target. green if blind, state 0 or 1. yellow if notBlind and state 2
-            if r.state == 0:  # green
-                pygame.draw.circle(
-                    screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
-                )
-            elif r.state == 1:
-                pygame.draw.circle(
-                    screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
-                )
-            elif r.state == 2:  # yellow
-                if r.is_blind:  # green again if blind trial
+                # draw target. green if blind, state 0 or 1. yellow if notBlind and state 2
+                if r.state == 0:  # green
                     pygame.draw.circle(
                         screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
                     )
-                else:  # yellow if not blind
+                elif r.state == 1:
                     pygame.draw.circle(
-                        screen, YELLOW, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
+                        screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
                     )
+                elif r.state == 2:  # yellow
+                    if r.is_blind:  # green again if blind trial
+                        pygame.draw.circle(
+                            screen, GREEN, (int(r.tgt_x), int(r.tgt_y)), r.tgt_radius, 2
+                        )
+                    else:  # yellow if not blind
+                        pygame.draw.circle(
+                            screen,
+                            YELLOW,
+                            (int(r.tgt_x), int(r.tgt_y)),
+                            r.tgt_radius,
+                            2,
+                        )
 
-            # Display scores:
-            font = pygame.font.Font(None, 80)
-            text = font.render(str(r.score), True, RED)
-            screen.blit(text, (1250, 10))
+                # Display scores:
+                font = pygame.font.Font(None, 80)
+                text = font.render(str(r.score), True, RED)
+                screen.blit(text, (1250, 10))
 
-            # --- update the screen with what we've drawn.
-            pygame.display.flip()
+                # --- update the screen with what we've drawn.
+                pygame.display.flip()
 
-            # After showing the cursor, check whether cursor is in the target
-            reaching_functions.check_target_reaching(r, timer_enter_tgt)
-            # Then check if cursor stayed in the target for enough time
-            reaching_functions.check_time_reaching(
-                r, timer_enter_tgt, timer_start_trial, timer_practice
-            )
+                # After showing the cursor, check whether cursor is in the target
+                reaching_functions.check_target_reaching(r, timer_enter_tgt)
+                # Then check if cursor stayed in the target for enough time
+                reaching_functions.check_time_reaching(
+                    r, timer_enter_tgt, timer_start_trial, timer_practice
+                )
 
-            # update label with number of targets remaining
-            tgt_remaining = 248 - r.trial + 1
-            lbl_tgt.configure(text="Remaining targets: " + str(tgt_remaining))
-            lbl_tgt.update()
+                # update label with number of targets remaining
+                tgt_remaining = 248 - r.trial + 1
+                lbl_tgt.configure(text="Remaining targets: " + str(tgt_remaining))
+                lbl_tgt.update()
 
-            # --- Limit to 50 frames per second
-            clock.tick(50)
+                # --- Limit to 50 frames per second
+                clock.tick(50)
 
     # Once we have exited the main program loop, stop the game engine and release the capture
     pygame.quit()
@@ -1121,7 +1147,7 @@ def get_data_from_camera(cap, q_frame, r, cal):
             ret, frame = cap.read()
             q_frame.put(frame)
             # if cal == 1:
-            #    cv2.imshow('current frame', frame)
+            #     cv2.imshow("current frame", frame)
     print("OpenCV thread terminated.")
 
 
@@ -1317,8 +1343,8 @@ if __name__ == "__main__":
     win = tk.Tk()
     win.title("BoMI Settings")
 
-    window_width = 1200
-    window_height = 520
+    window_width = 1366  # 1200
+    window_height = 768  # 520
 
     screen_width = win.winfo_screenwidth()
     screen_height = win.winfo_screenheight()

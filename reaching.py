@@ -1,14 +1,16 @@
 import os
 import numpy as np
 
+
 class Reaching:
     """
     Class that contains all the parameters for handling the reaching task
     """
+
     def __init__(self):
         # pygame parameters
-        self._width = 1200
-        self._height = 650
+        self._width = 1366
+        self._height = 768
         self._crs_radius = 15
         self._tgt_radius = 40
         self._tgt_dist = 260
@@ -23,7 +25,10 @@ class Reaching:
         self._target = 0
         self._state = 0
         self._comeback = 1
-        with open(os.path.dirname(os.path.abspath(__file__)) + '/targets/circle_coadapt.txt', 'r') as f:
+        with open(
+            os.path.dirname(os.path.abspath(__file__)) + "/targets/circle_coadapt.txt",
+            "r",
+        ) as f:
             list_tgt_tmp = f.read().splitlines()
         self._list_tgt = [int(x) for x in list_tgt_tmp]
         self._score = 0
@@ -215,7 +220,7 @@ class Reaching:
     @old_crs_x.setter
     def old_crs_x(self, value):
         self._old_crs_x = value
-        
+
     @property
     def old_crs_y(self):
         return self._old_crs_y
@@ -258,8 +263,3 @@ class Reaching:
     @property
     def path_log(self):
         return self._path_log
-
-
-
-
-
