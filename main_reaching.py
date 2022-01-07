@@ -36,7 +36,12 @@ import mediapipe as mp
 # For training pca/autoencoder
 from compute_bomi_map import Autoencoder, PrincipalComponentAnalysis, compute_vaf
 
+# For the assignment solution
+from solution import Solution
+
 pyautogui.PAUSE = 0.01  # set fps of cursor to 100Hz ish when mouse_enabled is True
+
+realMouse = None
 
 
 class MainApplication(tk.Frame):
@@ -152,29 +157,16 @@ class MainApplication(tk.Frame):
 
         # !!!!!!!!!!!!! [ADD CODE HERE] Mouse control checkbox !!!!!!!!!!!!!
 
-        # The Button to select the Mouse to control (Virtual/Real)
-        self.mouse_control = Button(
-            parent, text="Select Mouse", command=self.select_mouse
-        )
-        self.mouse_control.config(font=("Arial", self.font_size))
-        self.mouse_control.grid(
-            row=0, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
-        )
+        # Simulating a pointer to the MainApplication class
+        self.object_pointer = {"MainApplication": self}
 
-        # Real Mouse checkbox
-        self.real_mouse = BooleanVar()
-        self.real_mouse_ = Checkbutton(win, text="Real Mouse", variable=self.real_mouse)
-        self.real_mouse_.config(font=("Arial", self.font_size))
-        self.real_mouse_.grid(row=0, column=2, padx=(0, 40), pady=30, sticky="w")
+        # Initialising the Solution Class
+        global realMouse
+        realMouse = Solution(self.object_pointer, parent, win)
 
-        # Virtual Mouse checkbox
-        self.virtual_mouse = BooleanVar()
-        self.virtual_mouse_ = Checkbutton(
-            win, text="Virtual Mouse", variable=self.virtual_mouse
-        )
-        self.virtual_mouse_.config(font=("Arial", self.font_size))
-        self.virtual_mouse_.grid(row=0, column=3, padx=(0, 40), pady=30, sticky="w")
-
+        # Initialising the Mouse checkboxes and button
+        realMouse._init_mouse_checkbox()
+        realMouse._init_mouse_select_button()
         #############################################################
 
         self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
@@ -182,24 +174,6 @@ class MainApplication(tk.Frame):
         self.btn_close.grid(
             row=6, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
-
-    def select_mouse(self):
-        """Mouse selection callback function"""
-        if self.real_mouse.get() == True and self.virtual_mouse.get() == True:
-            # self.btn_num_joints["state"] = "disabled"
-            print("You need to pick only one of the options")
-
-        elif self.real_mouse.get() == False and self.virtual_mouse.get() == False:
-            # self.btn_num_joints["state"] = "disabled"
-            print("You need to pick one of the options")
-        else:
-            self.btn_num_joints["state"] = "normal"
-            if self.real_mouse.get():
-                self.check_mouse = True  # if the real mouse would be used
-                print("You have picked the Real Mouse")
-            elif self.virtual_mouse.get():
-                self.check_mouse = False  # if the virtual mouse would be used
-                print("You have picked the Virtual Mouse")
 
     # Count number of joints selected
     def select_joints(self):
@@ -298,7 +272,7 @@ class MainApplication(tk.Frame):
                 self.num_joints,
                 self.joints,
                 self.dr_mode,
-                self.check_mouse,
+                realMouse.check_mouse,
             )
             # [ADD CODE HERE: one of the argument of start reaching should be [self.check_mouse]
             # to check in the checkbox is enable] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -909,7 +883,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     pygame.init()
 
     # [ADD CODE HERE] get value from checkbox - is mouse enabled? !!!!!!!!!!!!!!!!!!!
-    ## Callback function in use for this
+    ## Select button Callback function in use for this
     ############################################################
 
     # Define some colors
@@ -998,12 +972,6 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     print("writing reaching log file thread started in practice.")
     print("cursor control thread is about to start...")
 
-    if check_mouse == True:
-        # real_screen_width, real_screen_height = get_display_size()
-        real_screen_width = pyautogui.size().width
-        real_screen_height = pyautogui.size().height
-        pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
-
     # -------- Main Program Loop -----------
     while not r.is_terminated:
         # --- Main event loop
@@ -1059,12 +1027,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             # only change coordinates of the computer cursor !!!!!!!!!!!!!!!!!!!!!
             # [ADD CODE HERE] !!!!!!!!!!!!!!!!!!!!!
             if check_mouse == True:
-                real_width = (r.crs_x / r.width) * real_screen_width
-                real_height = (r.crs_y / r.height) * real_screen_height
-                print(
-                    f"Virtual Mouse -  x: {r.crs_x}, y: {r.crs_y}\nReal Mouse - x: {real_width}, y: {real_height}\n\n"
-                )
-                pyautogui.moveTo(real_width, real_height)
+                realMouse.move_real_mouse(r)
 
             # else: do the reaching
 
