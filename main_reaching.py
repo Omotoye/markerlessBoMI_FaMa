@@ -27,7 +27,8 @@ import reaching_functions
 
 # For controlling computer cursor
 import pyautogui
-from get_res import get_display_size  # for getting the screen resolution of the machine
+
+# from get_res import get_display_size  # for getting the screen resolution of the machine
 
 # For Mediapipe
 import mediapipe as mp
@@ -998,7 +999,9 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     print("cursor control thread is about to start...")
 
     if check_mouse == True:
-        real_screen_width, real_screen_height = get_display_size()
+        # real_screen_width, real_screen_height = get_display_size()
+        real_screen_width = pyautogui.size().width
+        real_screen_height = pyautogui.size().height
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
 
     # -------- Main Program Loop -----------

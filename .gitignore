@@ -17,3 +17,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+
+# practice data
+Practice/
+
+# calibration data
+calib/
