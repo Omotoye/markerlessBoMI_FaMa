@@ -8,6 +8,9 @@ import pyautogui
 # for getting the screen resolution of the machine
 from get_res import get_display_size
 
+# for check when to click
+from stopwatch import StopWatch
+
 
 class Solution:
     def __init__(self, MainApplication, parent, win):
@@ -17,9 +20,23 @@ class Solution:
             MainApplication  # Initialising a reference to the MainApplication class
         )
         self.parent = parent
+        self.old_real_mouse_x_coord = 0
+        self.new_real_mouse_x_coord = 0
+        self.old_real_mouse_y_coord = 0
+        self.new_real_mouse_y_coord = 0
+        self.abs_x_coord_diff = abs(
+            self.new_real_mouse_x_coord - self.old_real_mouse_x_coord
+        )
+        self.abs_y_coord_diff = abs(
+            self.new_real_mouse_y_coord - self.old_real_mouse_y_coord
+        )
         self.win = win
         self.font_size = 18
+        self.size = (1, 1)
+        self.state = 1  # 1: if the cursor is just moving around, 2: if the cursor has a possible target, 3: definite target found and its time to click
         self.get_real_width_height()
+        self.stopwatch = StopWatch()
+        self.stopwatch_started = False
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
 
     def _init_mouse_checkbox(self):
@@ -75,9 +92,47 @@ class Solution:
 
     def move_real_mouse(self, r):
         # Scaling virtual cursor coordinates to real screen coordinates
-        real_mouse_x_coord = (r.crs_x / r.width) * self.real_screen_width
-        real_mouse_y_coord = (r.crs_y / r.height) * self.real_screen_height
+        self.old_real_mouse_x_coord = self.new_real_mouse_x_coord
+        self.old_real_mouse_y_coord = self.new_real_mouse_y_coord
+
+        self.real_mouse_x_coord = (r.crs_x / r.width) * self.real_screen_width
+        self.real_mouse_y_coord = (r.crs_y / r.height) * self.real_screen_height
+
+        self.new_real_mouse_x_coord = self.real_mouse_x_coord
+        self.new_real_mouse_y_coord = self.real_mouse_y_coord
         # print(
         #     f"Virtual Mouse -  x: {r.crs_x}, y: {r.crs_y}\nReal Mouse - x: {real_width}, y: {real_height}\n\n"
         # )
-        pyautogui.moveTo(real_mouse_x_coord, real_mouse_y_coord)
+        pyautogui.moveTo(self.real_mouse_x_coord, self.real_mouse_y_coord)
+
+    def click_real_mouse(self):
+        print(self.state)
+        if self.state == 1:
+            self.check_mouse_stability()
+        if self.state == 2:
+            self.time_mouse_stability()
+            self.check_mouse_stability()
+        if self.state == 3:
+            pyautogui.leftClick()
+            print("Click")
+            self.state = 1
+
+    def check_mouse_stability(self):
+        if (self.abs_x_coord_diff < 50) and (self.abs_y_coord_diff < 50):
+            if self.state != 3:
+                self.state = 2  # there's a possiblity of a click
+        else:
+            if self.stopwatch_started == True:
+                self.stopwatch.pause()
+                self.stopwatch_started = False
+                self.state = 1
+
+    def time_mouse_stability(self):
+        if self.stopwatch_started == False:
+            self.stopwatch.start()
+            self.stopwatch_started = True
+        else:
+            if self.stopwatch.elapsed_time >= 3000:
+                self.stopwatch.pause()
+                self.stopwatch_started = False
+                self.state = 3  # let the click begin :)

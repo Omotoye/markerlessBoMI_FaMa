@@ -15,3 +15,4 @@ pyautogui.moveRel(100, 100, 3)
 # Click
 pyautogui.click(100, 100, 3, 3, button="left")
 pyautogui.rightClick()
+pyautogui.leftClick()

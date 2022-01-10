@@ -883,7 +883,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     pygame.init()
 
     # [ADD CODE HERE] get value from checkbox - is mouse enabled? !!!!!!!!!!!!!!!!!!!
-    ## Select button Callback function in use for this
+    ## Select Mouse button Callback function in use for this
     ############################################################
 
     # Define some colors
@@ -899,7 +899,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     filter_curs = FilterButter3("lowpass_4")
 
     if check_mouse == True:
-        size = (1, 1)
+        size = realMouse.size
     else:
         size = (r.width, r.height)
 
@@ -1028,6 +1028,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             # [ADD CODE HERE] !!!!!!!!!!!!!!!!!!!!!
             if check_mouse == True:
                 realMouse.move_real_mouse(r)
+                realMouse.click_real_mouse()
 
             # else: do the reaching
 

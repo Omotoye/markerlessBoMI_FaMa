@@ -10,8 +10,10 @@ def write_header(r):
     if not os.path.exists(r.path_log):
         os.mkdir(r.path_log)
 
-    header = "time\tnose_x\tnose_y\tr_shoulder_x\tr_shoulder_y\tl_shoulder_x\tl_shooulder_t\tcursor_x\tcursor_y\tblock\t"\
-             "repetition\ttarget\ttrial\tstate\tcomeback\tis_blind\tat_home\tcount_mouse\tscore\n"
+    header = (
+        "time\tnose_x\tnose_y\tr_shoulder_x\tr_shoulder_y\tl_shoulder_x\tl_shooulder_t\tcursor_x\tcursor_y\tblock\t"
+        "repetition\ttarget\ttrial\tstate\tcomeback\tis_blind\tat_home\tcount_mouse\tscore\n"
+    )
     with open(r.path_log + "PracticeLog.txt", "w+") as file_log:
         file_log.write(header)
 
@@ -26,11 +28,21 @@ def initialize_targets(r):
     r.empty_tgt_y_list()
     for i in range(r.tot_targets[r.block - 1]):
         r.tgt_x_list.append(
-            (r.width / 2) + r.tgt_dist * np.cos(
-                (2 * i * np.pi / r.tot_targets[r.block - 1]) + np.pi / r.tot_targets[r.block - 1]))
+            (r.width / 2)
+            + r.tgt_dist
+            * np.cos(
+                (2 * i * np.pi / r.tot_targets[r.block - 1])
+                + np.pi / r.tot_targets[r.block - 1]
+            )
+        )
         r.tgt_y_list.append(
-            (r.height / 2) + r.tgt_dist * np.sin(
-                (2 * i * np.pi / r.tot_targets[r.block - 1]) + np.pi / r.tot_targets[r.block - 1]))
+            (r.height / 2)
+            + r.tgt_dist
+            * np.sin(
+                (2 * i * np.pi / r.tot_targets[r.block - 1])
+                + np.pi / r.tot_targets[r.block - 1]
+            )
+        )
 
 
 def set_target_reaching_customization(r):
@@ -93,7 +105,9 @@ def update_cursor_position_custom(body, map, rot, scale, off):
     return cu[0], cu[1]
 
 
-def update_cursor_position(body, map, rot_ae, scale_ae, off_ae, rot_custom, scale_custom, off_custom):
+def update_cursor_position(
+    body, map, rot_ae, scale_ae, off_ae, rot_custom, scale_custom, off_custom
+):
 
     if type(map) != tuple:
         cu = np.dot(body, map)
@@ -109,8 +123,12 @@ def update_cursor_position(body, map, rot_ae, scale_ae, off_ae, rot_custom, scal
     cu = cu + off_ae
 
     # Applying rotation, scale and offset computed after customization
-    cu[0] = cu[0] * np.cos(np.pi / 180 * rot_custom) - cu[1] * np.sin(np.pi / 180 * rot_custom)
-    cu[1] = cu[0] * np.sin(np.pi / 180 * rot_custom) + cu[1] * np.cos(np.pi / 180 * rot_custom)
+    cu[0] = cu[0] * np.cos(np.pi / 180 * rot_custom) - cu[1] * np.sin(
+        np.pi / 180 * rot_custom
+    )
+    cu[1] = cu[0] * np.sin(np.pi / 180 * rot_custom) + cu[1] * np.cos(
+        np.pi / 180 * rot_custom
+    )
     cu = cu * scale_custom
     cu = cu + off_custom
 
@@ -119,10 +137,36 @@ def update_cursor_position(body, map, rot_ae, scale_ae, off_ae, rot_custom, scal
 
 def write_practice_files(r, body, timer_practice):
 
-    log = str(timer_practice.elapsed_time) + "\t" + '\t'.join(map(str, body)) + "\t" + str(r.crs_x) + "\t" + str(r.crs_y) + "\t" + str(r.block) + "\t" + \
-          str(r.repetition) + "\t" + str(r.target) + "\t" + str(r.trial) + "\t" + str(r.state) + "\t" + \
-          str(r.comeback) + "\t" + str(r.is_blind) + "\t" + str(r.at_home) + "\t" + str(r.count_mouse) + "\t" + \
-          str(r.score) + "\n"
+    log = (
+        str(timer_practice.elapsed_time)
+        + "\t"
+        + "\t".join(map(str, body))
+        + "\t"
+        + str(r.crs_x)
+        + "\t"
+        + str(r.crs_y)
+        + "\t"
+        + str(r.block)
+        + "\t"
+        + str(r.repetition)
+        + "\t"
+        + str(r.target)
+        + "\t"
+        + str(r.trial)
+        + "\t"
+        + str(r.state)
+        + "\t"
+        + str(r.comeback)
+        + "\t"
+        + str(r.is_blind)
+        + "\t"
+        + str(r.at_home)
+        + "\t"
+        + str(r.count_mouse)
+        + "\t"
+        + str(r.score)
+        + "\n"
+    )
 
     with open(r.path_log + "PracticeLog.txt", "a") as file_log:
         file_log.write(log)
@@ -151,21 +195,35 @@ def check_target_reaching(r, timer_enter_tgt):
     # If blind trial -> stopping criterion is different
     # (cursor has to remain in a specific region for 2000 ms (50 Hz -> count_mouse == 100)
     else:
-        if (r.old_crs_x + 10 > r.crs_x > r.old_crs_x - 10 and
-                r.old_crs_y + 10 > r.crs_y > r.old_crs_y - 10 and r.at_home == 0):
+        if (
+            r.old_crs_x + 10 > r.crs_x > r.old_crs_x - 10
+            and r.old_crs_y + 10 > r.crs_y > r.old_crs_y - 10
+            and r.at_home == 0
+        ):
             r.count_mouse += 1
         else:
             r.count_mouse = 0
 
     # Check here if the cursor is in the home target. In this case modify at_home to turn on/off the visual feedback
     # if the corresponding checkbox is selected
-    if (r.repetition > 5 and
-            (r.block == 2 or r.block == 3 or r.block == 4 or r.block == 5 or
-             r.block == 7 or r.block == 8 or r.block == 9 or r.block == 10)):
-        if (r.tgt_x_list[r.list_tgt[r.trial - 2]] - r.tgt_radius < r.crs_x < r.tgt_x_list[
-            r.list_tgt[r.trial - 2]] + r.tgt_radius and
-                r.tgt_y_list[r.list_tgt[r.trial - 2]] - r.tgt_radius < r.crs_y < r.tgt_y_list[
-                    r.list_tgt[r.trial - 2]] + r.tgt_radius):
+    if r.repetition > 5 and (
+        r.block == 2
+        or r.block == 3
+        or r.block == 4
+        or r.block == 5
+        or r.block == 7
+        or r.block == 8
+        or r.block == 9
+        or r.block == 10
+    ):
+        if (
+            r.tgt_x_list[r.list_tgt[r.trial - 2]] - r.tgt_radius
+            < r.crs_x
+            < r.tgt_x_list[r.list_tgt[r.trial - 2]] + r.tgt_radius
+            and r.tgt_y_list[r.list_tgt[r.trial - 2]] - r.tgt_radius
+            < r.crs_y
+            < r.tgt_y_list[r.list_tgt[r.trial - 2]] + r.tgt_radius
+        ):
             r.at_home = 1
         else:
             r.at_home = 0
@@ -198,7 +256,16 @@ def check_time_reaching(r, timer_enter_tgt, timer_start_trial, timer_practice):
             r.score += 1
 
         # Random Walk
-        if r.block == 2 or r.block == 3 or r.block == 4 or r.block == 5 or r.block == 7 or r.block == 8 or r.block == 9 or r.block == 10:
+        if (
+            r.block == 2
+            or r.block == 3
+            or r.block == 4
+            or r.block == 5
+            or r.block == 7
+            or r.block == 8
+            or r.block == 9
+            or r.block == 10
+        ):
             if r.comeback == 0:  # going towards peripheral targets
                 # Never comeback home
                 # if you finished a repetition
@@ -280,26 +347,15 @@ def stop_thread(r):
 
 def filt(N, fc, fs, btype, signal):
     """
-        Function that filters an input signal (with Butterworth IIR)
-        :param N: order of the filter
-        :param fc: cutoff frequency
-        :param fs: sampling frequency of input signal
-        :param btype: type of filter {‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’}
-        :param signal: input signal to be filtered
-        :return: filtered signal
+    Function that filters an input signal (with Butterworth IIR)
+    :param N: order of the filter
+    :param fc: cutoff frequency
+    :param fs: sampling frequency of input signal
+    :param btype: type of filter {‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’}
+    :param signal: input signal to be filtered
+    :return: filtered signal
     """
     Wn = fc / (fs / 2)
     b, a = sgn.butter(N, Wn, btype)
 
     return pd.Series(sgn.lfilter(b, a, signal))
-
-
-
-
-
-
-
-
-
-
-
