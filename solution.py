@@ -20,16 +20,6 @@ class Solution:
             MainApplication  # Initialising a reference to the MainApplication class
         )
         self.parent = parent
-        self.old_real_mouse_x_coord = 0
-        self.new_real_mouse_x_coord = 0
-        self.old_real_mouse_y_coord = 0
-        self.new_real_mouse_y_coord = 0
-        self.abs_x_coord_diff = abs(
-            self.new_real_mouse_x_coord - self.old_real_mouse_x_coord
-        )
-        self.abs_y_coord_diff = abs(
-            self.new_real_mouse_y_coord - self.old_real_mouse_y_coord
-        )
         self.win = win
         self.font_size = 18
         self.size = (1, 1)
@@ -37,6 +27,8 @@ class Solution:
         self.get_real_width_height()
         self.stopwatch = StopWatch()
         self.stopwatch_started = False
+        self.select_point = False
+        self.x_min, self.x_max, self.y_min, self.y_max = 0, 0, 0, 0
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
 
     def _init_mouse_checkbox(self):
@@ -92,47 +84,68 @@ class Solution:
 
     def move_real_mouse(self, r):
         # Scaling virtual cursor coordinates to real screen coordinates
-        self.old_real_mouse_x_coord = self.new_real_mouse_x_coord
-        self.old_real_mouse_y_coord = self.new_real_mouse_y_coord
-
         self.real_mouse_x_coord = (r.crs_x / r.width) * self.real_screen_width
         self.real_mouse_y_coord = (r.crs_y / r.height) * self.real_screen_height
 
-        self.new_real_mouse_x_coord = self.real_mouse_x_coord
-        self.new_real_mouse_y_coord = self.real_mouse_y_coord
-        # print(
-        #     f"Virtual Mouse -  x: {r.crs_x}, y: {r.crs_y}\nReal Mouse - x: {real_width}, y: {real_height}\n\n"
-        # )
         pyautogui.moveTo(self.real_mouse_x_coord, self.real_mouse_y_coord)
 
     def click_real_mouse(self):
         print(self.state)
         if self.state == 1:
-            self.check_mouse_stability()
+            if self.select_point == False:
+                self.set_point_boundary()
+                self.time_mouse_stability()
+                self.select_point = True
+
+            if self.stopwatch_started == True:
+                if self.stopwatch.elapsed_time >= 500:
+                    if self.check_mouse_stability():
+                        self.state = 2
+                    self.select_point = False
+
         if self.state == 2:
-            self.time_mouse_stability()
-            self.check_mouse_stability()
+            if self.stopwatch.elapsed_time >= 1000:
+                if self.check_mouse_stability() == False:
+                    self.state == 1
+                    self.stopwatch.pause()
+                    self.stopwatch_started = False
+            if self.stopwatch.elapsed_time >= 1500:
+                if self.check_mouse_stability() == False:
+                    self.state == 1
+                    self.stopwatch.pause()
+                    self.stopwatch_started = False
+            if self.stopwatch.elapsed_time >= 2000:
+                if self.check_mouse_stability():
+                    self.state = 3
+                else:
+                    self.state = 1
+                self.stopwatch.pause()
+                self.stopwatch_started = False
+
         if self.state == 3:
             pyautogui.leftClick()
             print("Click")
             self.state = 1
 
     def check_mouse_stability(self):
-        if (self.abs_x_coord_diff < 50) and (self.abs_y_coord_diff < 50):
-            if self.state != 3:
-                self.state = 2  # there's a possiblity of a click
+        if (self.x_min < self.real_mouse_x_coord < self.x_max) and (
+            self.y_min < self.real_mouse_y_coord < self.y_max
+        ):
+            return True
         else:
-            if self.stopwatch_started == True:
-                self.stopwatch.pause()
-                self.stopwatch_started = False
-                self.state = 1
+            return False
+
+    def set_point_boundary(self):
+        self.x_min, self.x_max = (
+            self.real_mouse_x_coord - 50,
+            self.real_mouse_x_coord + 50,
+        )
+        self.y_min, self.y_max = (
+            self.real_mouse_y_coord - 50,
+            self.real_mouse_y_coord + 50,
+        )
 
     def time_mouse_stability(self):
         if self.stopwatch_started == False:
             self.stopwatch.start()
             self.stopwatch_started = True
-        else:
-            if self.stopwatch.elapsed_time >= 3000:
-                self.stopwatch.pause()
-                self.stopwatch_started = False
-                self.state = 3  # let the click begin :)
