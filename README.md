@@ -10,7 +10,7 @@
 | :------------------------: | :--------: | :----------------------: |
 |     Yara Abdelmottaleb     |  5066359   |   yara.ala96@gmail.com   |
 |   Adedamola Ayodeji Sode   |  5360004   | adedamola.sode@yahoo.com |
-|     Leonardo Borgioli      |            |                          |
+|     Leonardo Borgioli      |  5359961   | borgioli27@gmail.com     |
 | Omotoye Shamsudeen Adekoya |  5066348   | adekoyaomotoye@gmail.com |
 
 ## Project Objectives
