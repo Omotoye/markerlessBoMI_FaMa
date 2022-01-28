@@ -1029,6 +1029,8 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             if check_mouse == True:
                 realMouse.move_real_mouse(r)
                 realMouse.click_real_mouse()
+                # realMouse.move_mobile_robot(r)
+                # realMouse.move_planar_manipulator(r)
 
             # else: do the reaching
 

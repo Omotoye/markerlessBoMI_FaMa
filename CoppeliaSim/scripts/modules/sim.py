@@ -3,7 +3,7 @@ import struct
 import sys
 import os
 import ctypes as ct
-from modules.simConst import *
+from CoppeliaSim.scripts.modules.simConst import *
 
 # load library
 libsimx = None

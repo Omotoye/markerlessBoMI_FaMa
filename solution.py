@@ -11,6 +11,9 @@ from get_res import get_display_size
 # for check when to click
 from stopwatch import StopWatch
 
+from CoppeliaSim.scripts.kuka_controller import KukaMobileRobot
+from CoppeliaSim.scripts.planar_manipulator_controller import PlanarManipulator
+
 
 class Solution:
     def __init__(self, MainApplication, parent, win):
@@ -30,6 +33,8 @@ class Solution:
         self.select_point = False
         self.x_min, self.x_max, self.y_min, self.y_max = 0, 0, 0, 0
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
+        # self.mobile_robot = KukaMobileRobot()
+        self.planar_manipulator = PlanarManipulator()
 
     def _init_mouse_checkbox(self):
         # Real Mouse checkbox
@@ -88,6 +93,15 @@ class Solution:
         self.real_mouse_y_coord = (r.crs_y / r.height) * self.real_screen_height
 
         pyautogui.moveTo(self.real_mouse_x_coord, self.real_mouse_y_coord)
+
+    def move_mobile_robot(self, r):
+        self.mobile_robot.move_mobile_robot(r)
+
+    def move_planar_manipulator(self, r):
+        x = (r.crs_x / r.width) * 0.9
+        y = (r.crs_y / r.width) * 0.9
+        target_coord = [x, y, 0.35]
+        self.planar_manipulator.move_manipulator_tip(target_coord)
 
     def click_real_mouse(self):
         print(self.state)
