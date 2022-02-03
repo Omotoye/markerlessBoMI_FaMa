@@ -1048,8 +1048,9 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             if check_mouse == True:
                 # solution.move_mobile_robot(r)
                 if solution.check_real_mouse:
-                    solution.move_real_mouse(r)
-                    solution.click_real_mouse()
+                    #solution.move_real_mouse(r)
+                    #solution.click_real_mouse()
+                    solution.move_mobile_robot(r)
                 elif solution.check_planar_manipulator:
                     solution.move_planar_manipulator(r)
                 else:

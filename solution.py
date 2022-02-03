@@ -11,11 +11,12 @@ from get_res import get_display_size
 # for check when to click
 from stopwatch import StopWatch
 
-# from CoppeliaSim.scripts.kuka_controller import KukaMobileRobot
+from CoppeliaSim.scripts.kuka_controller import KukaMobileRobot
 from CoppeliaSim.scripts.manipulator_controller import ManipulatorController
 
 import sys
 import os
+
 
 import time
 
@@ -40,7 +41,9 @@ class Solution:
         self.select_point = False
         self.x_min, self.x_max, self.y_min, self.y_max = 0, 0, 0, 0
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
-        # self.mobile_robot = KukaMobileRobot()
+       
+        self.mobile_robot = KukaMobileRobot()
+        
         self.parallel_man_sim_launched = False
         self.planar_man_sim_launched = False
         self.planar_manipulator_abspath = os.path.abspath(
@@ -210,9 +213,10 @@ class Solution:
             self.stopwatch_started = True
 
         if self.stopwatch.elapsed_time >= 2000:
-            x, y = self._coord_converter(
-                ((r.crs_x / r.width) * 4), ((r.crs_y / r.width) * 4)
-            )
+          #  x, y = self._coord_converter(
+           #     ((r.crs_x / r.width) * , ((r.crs_y / r.width) * 4)
+           # )
+            x,y=self._coord_converter(r)
             self.mobile_robot.move_mobile_robot(x, y)
             self.stopwatch_started = False
 
@@ -220,7 +224,7 @@ class Solution:
         # x = (r.crs_x / r.width) * 0.9
         x = (r.crs_x / r.width) * (0.5 - (-0.7)) + (-0.7)
         # y = (r.crs_y / r.width) * 0.9
-        y = (r.crs_y / r.width) * (0.9 - (-0.9)) + (-0.9)
+        y = (r.crs_y / r.height) * (0.9 - (-0.9)) + (-0.9)
         target_coord = [x, y, 0.35]
         self.planar_manipulator.move_manipulator_tip(target_coord)
 
@@ -228,16 +232,20 @@ class Solution:
         # x = (r.crs_x / r.width) * 0.9
         x = (r.crs_x / r.width) * (0.5 - (-0.7)) + (-0.7)
         # y = (r.crs_y / r.width) * 0.9
-        y = (r.crs_y / r.width) * (0.9 - (-0.9)) + (-0.9)
+        y = (r.crs_y / r.height) * (0.9 - (-0.9)) + (-0.9)
         target_coord = [x, y, 0.35]
         self.parallel_manipulator.move_manipulator_tip(target_coord)
 
-    def _coord_converter(self, x, y):
-        x = x - 2
-        if (0 <= y) and (y < 2):
-            y = 2 + y
-        else:
-            y = 2 - y
+    def _coord_converter(self,r):
+        x = (r.crs_x / r.width) * (2 - (-2)) + (-2)
+        # y = (r.crs_y / r.width) * 0.9
+        y = (r.crs_y / r.height) * (2 - (-2)) + (-2)
+
+        #  x = x - 2
+       # if (0 <= y) and (y < 2):
+        #    y = 2 + y
+        #else:
+        #    y = 2 - y
         return x, y
 
     def click_real_mouse(self):
