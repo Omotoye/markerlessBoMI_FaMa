@@ -40,7 +40,8 @@ Three different robots may be controlled thanks to the BOMI system:
 1. RRR Planar manipulator, made by us in the AUTOCAD program  [AUTODESKINVENTOR](https://www.autodesk.com/products/inventor-lt/overview?mktvar002=afc_fr_nmpi_ppc&AID=11043042&PID=8227014&gclsrc=aw.ds&ds_rl=1232386&ds_rl=1232407&ds_rl=1232410&SID=jkp_CjwKCAiAl-6PBhBCEiwAc2GOVKCKCVERaGmKnMb4ls1yjDRXe1MEFt0hfhDcdbmbsovZApgB4GwjxBoCvQ8QAvD_BwE&cjevent=4239846f852511ec8110083e0a180513&affname=8227014_11043042&cjdata=MXxZfDB8WXww). The model is made by three parts which .obj file can be found in the `...\markerlessBoMI_FaMa-main\CoppeliaSim\Parts` folder. 
 ![image](https://user-images.githubusercontent.com/72743858/152412787-5c7ae4e0-c41f-43f7-bfe8-00d0dc972061.png). In Coppeliasim to reduce time computation some basic shapes as been used as kinematic meshes, and the 3D meshes as visible ones. 
 ![image](https://user-images.githubusercontent.com/72743858/152413574-219d271b-4a1f-4fd2-af63-980a7db69f22.png)
-![image](https://user-images.githubusercontent.com/72743858/152413669-278c30ce-568a-4630-881c-7fdef33f7b0f.png)
+![image](https://user-images.githubusercontent.com/72743858/152413817-d878e2db-bf0f-46ea-b528-eb4ff1a9006e.png)
+
 
 
 
