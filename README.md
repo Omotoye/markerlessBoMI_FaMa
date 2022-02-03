@@ -35,7 +35,8 @@ For example in the case of "planar manipulator":
 - Now by moving the head the robot should move accordigly.
 - To have a better control we advice to change the view for a top one clicking in the icon below.
 
-![image](https://user-images.githubusercontent.com/72743858/152435016-14be348f-5a92-4ded-9992-518a74fd1e57.png)
+![image](https://user-images.githubusercontent.com/72743858/152435220-8d173692-96f9-4fc8-ab0b-164656d3706f.png)
+
  
 
 ## Available systems
