@@ -41,7 +41,7 @@ from solution import Solution
 
 pyautogui.PAUSE = 0.01  # set fps of cursor to 100Hz ish when mouse_enabled is True
 
-realMouse = None
+solution = None
 
 
 class MainApplication(tk.Frame):
@@ -161,12 +161,12 @@ class MainApplication(tk.Frame):
         self.object_pointer = {"MainApplication": self}
 
         # Initialising the Solution Class
-        global realMouse
-        realMouse = Solution(self.object_pointer, parent, win)
+        global solution
+        solution = Solution(self.object_pointer, parent, win)
 
         # Initialising the Mouse checkboxes and button
-        realMouse._init_mouse_checkbox()
-        realMouse._init_mouse_select_button()
+        solution._init_mouse_checkbox()
+        solution._init_mouse_select_button()
         #############################################################
 
         self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
@@ -272,7 +272,7 @@ class MainApplication(tk.Frame):
                 self.num_joints,
                 self.joints,
                 self.dr_mode,
-                realMouse.check_mouse,
+                solution.check_device,
             )
             # [ADD CODE HERE: one of the argument of start reaching should be [self.check_mouse]
             # to check in the checkbox is enable] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -899,7 +899,7 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
     filter_curs = FilterButter3("lowpass_4")
 
     if check_mouse == True:
-        size = realMouse.size
+        size = solution.size
     else:
         size = (r.width, r.height)
 
@@ -1027,10 +1027,14 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             # only change coordinates of the computer cursor !!!!!!!!!!!!!!!!!!!!!
             # [ADD CODE HERE] !!!!!!!!!!!!!!!!!!!!!
             if check_mouse == True:
-                realMouse.move_real_mouse(r)
-                realMouse.click_real_mouse()
-                # realMouse.move_mobile_robot(r)
-                # realMouse.move_planar_manipulator(r)
+                # solution.move_mobile_robot(r)
+                if solution.check_real_mouse:
+                    solution.move_real_mouse(r)
+                    solution.click_real_mouse()
+                elif solution.check_planar_manipulator:
+                    solution.move_planar_manipulator(r)
+                else:
+                    solution.move_parallel_manipulator(r)
 
             # else: do the reaching
 
