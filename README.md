@@ -17,6 +17,10 @@
 
 for more information about the project objectives [click here](docs/assignment_instructions.pdf)
 
+## Code description
+
+The main features of the code may be found [here](https://omotoye.github.io/markerlessBoMI_FaMa/)
+
 ## User Guide
 
 1. Install Coppeliasim EDU version [click here](https://www.coppeliarobotics.com/downloads), it will be necessary to control the robots. 
