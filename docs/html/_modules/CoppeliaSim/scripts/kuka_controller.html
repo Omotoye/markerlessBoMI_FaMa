@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoppeliaSim.scripts.kuka_controller &mdash; Group4_BMI 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Group4_BMI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Group4_BMI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>CoppeliaSim.scripts.kuka_controller</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for CoppeliaSim.scripts.kuka_controller</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: kuka_controller</span>
+
+<span class="sd">:platform: Unix</span>
+<span class="sd">:synopsis: Python module for the position controller of the kuka robot </span>
+
+<span class="sd">.. moduleauthor:: Omotoye Shamsudeen Adekoya, Leonardo Borgioli, Yara Abdelmottaleb, Adedamola Sode.</span>
+
+<span class="sd">This script implements the position controller of the kuka robot</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">CoppeliaSim.scripts.modules</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">sim</span> <span class="k">as</span> <span class="n">copp</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># access all the COPPELIASIM elements</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+
+<div class="viewcode-block" id="KukaMobileRobot"><a class="viewcode-back" href="../../../index.html#CoppeliaSim.scripts.kuka_controller.KukaMobileRobot">[docs]</a><span class="k">class</span> <span class="nc">KukaMobileRobot</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class responsible for communicating with the Kuka mobile robot and controlling it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization of the KukaMobileRobot class</span>
+<span class="sd">        Establishes the connection. Sets the port at which to communicate with CoppeliaSim</span>
+<span class="sd">        Gets the object handles for the four motors of the Kuka robot</span>
+<span class="sd">        Initialize current robot position to zero</span>
+<span class="sd">      </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">copp</span><span class="o">.</span><span class="n">simxFinish</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># just in case, close all opened connections</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxStart</span><span class="p">(</span>
+            <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">19999</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">5</span>
+        <span class="p">)</span>  <span class="c1"># start a connection</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connected to remote API server&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not connected to remote API server&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fl_motor</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxGetObjectHandle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span> <span class="s2">&quot;rollingJoint_fl&quot;</span><span class="p">,</span> <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_blocking</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rl_motor</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxGetObjectHandle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span> <span class="s2">&quot;rollingJoint_rl&quot;</span><span class="p">,</span> <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_blocking</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rr_motor</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxGetObjectHandle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span> <span class="s2">&quot;rollingJoint_rr&quot;</span><span class="p">,</span> <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_blocking</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fr_motor</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxGetObjectHandle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span> <span class="s2">&quot;rollingJoint_fr&quot;</span><span class="p">,</span> <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_blocking</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_position_x</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_position_y</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_target</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SPEED</span> <span class="o">=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="KukaMobileRobot.get_required_velocity"><a class="viewcode-back" href="../../../index.html#CoppeliaSim.scripts.kuka_controller.KukaMobileRobot.get_required_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">get_required_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the required x and y velocities to be sent to the robot based on the distance to the target</span>
+<span class="sd">        The velocities are multiplied by a gain SPEED</span>
+<span class="sd">      </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;x:</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">, y:</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">, current_position_x: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_position_x</span><span class="si">}</span><span class="s2">, current_position_y: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_position_y</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="c1">#dist_x = abs(x - self.current_position_x)</span>
+        <span class="c1">#dist_y = abs(y - self.current_position_y)</span>
+        
+        <span class="n">dist_x</span><span class="o">=</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position_x</span>
+        <span class="n">dist_y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position_y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_position_x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_position_y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">distance_to_target</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">((</span><span class="n">dist_x</span> <span class="o">*</span> <span class="n">dist_x</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">dist_y</span> <span class="o">*</span> <span class="n">dist_y</span><span class="p">))</span>
+        <span class="n">required_x_vel</span> <span class="o">=</span> <span class="n">dist_x</span> <span class="o">/</span> <span class="p">(</span><span class="n">distance_to_target</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPEED</span><span class="p">)</span>
+        <span class="n">required_y_vel</span> <span class="o">=</span> <span class="n">dist_y</span> <span class="o">/</span> <span class="p">(</span><span class="n">distance_to_target</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPEED</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;distance_to_target: </span><span class="si">{</span><span class="n">distance_to_target</span><span class="si">}</span><span class="s2">, required_x_vel: </span><span class="si">{</span><span class="n">required_x_vel</span><span class="si">}</span><span class="s2">, required_y_vel: </span><span class="si">{</span><span class="n">required_y_vel</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">distance_to_target</span><span class="p">,</span> <span class="n">required_x_vel</span><span class="p">,</span> <span class="n">required_y_vel</span></div>
+
+<div class="viewcode-block" id="KukaMobileRobot.move_mobile_robot"><a class="viewcode-back" href="../../../index.html#CoppeliaSim.scripts.kuka_controller.KukaMobileRobot.move_mobile_robot">[docs]</a>    <span class="k">def</span> <span class="nf">move_mobile_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        responsible for moving the mobile robot given a target position x and y</span>
+<span class="sd">        It gets the required x and y velocities for the robot using the function get_required_velocity() </span>
+<span class="sd">        and sets the motor velocity values based on these velocities</span>
+<span class="sd">        :param x: the target x position</span>
+<span class="sd">        :param y: the target y position</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span><span class="p">:</span>
+            <span class="n">rotVel</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_target</span><span class="p">,</span>
+                <span class="n">forwBackVel</span><span class="p">,</span>
+                <span class="n">leftRightVel</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_required_velocity</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxSetJointTargetVelocity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fl_motor</span><span class="p">,</span>
+                <span class="o">-</span><span class="n">forwBackVel</span> <span class="o">-</span> <span class="n">leftRightVel</span> <span class="o">-</span> <span class="n">rotVel</span><span class="p">,</span>
+                <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_oneshot</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxSetJointTargetVelocity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rl_motor</span><span class="p">,</span>
+                <span class="o">-</span><span class="n">forwBackVel</span> <span class="o">+</span> <span class="n">leftRightVel</span> <span class="o">-</span> <span class="n">rotVel</span><span class="p">,</span>
+                <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_oneshot</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxSetJointTargetVelocity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rr_motor</span><span class="p">,</span>
+                <span class="o">-</span><span class="n">forwBackVel</span> <span class="o">-</span> <span class="n">leftRightVel</span> <span class="o">+</span> <span class="n">rotVel</span><span class="p">,</span>
+                <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_oneshot</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span> <span class="o">=</span> <span class="n">copp</span><span class="o">.</span><span class="n">simxSetJointTargetVelocity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clientID</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fr_motor</span><span class="p">,</span>
+                <span class="o">-</span><span class="n">forwBackVel</span> <span class="o">+</span> <span class="n">leftRightVel</span> <span class="o">+</span> <span class="n">rotVel</span><span class="p">,</span>
+                <span class="n">copp</span><span class="o">.</span><span class="n">simx_opmode_oneshot</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Not Connected&quot;</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Borgioli, Adekoya, Abdelmottaleb, Sode..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>solution &mdash; Group4_BMI 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Group4_BMI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Group4_BMI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>solution</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for solution</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: solution</span>
+
+<span class="sd">:platform: Unix</span>
+<span class="sd">:synopsis: Python module for the user Interface</span>
+
+<span class="sd">.. moduleauthor:: Omotoye Shamsudeen Adekoya, Leonardo Borgioli, Yara Abdelmottaleb, Adedamola Sode.</span>
+
+<span class="sd">This script implements the solution of a BoMI</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># For GUI</span>
+<span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">Label</span><span class="p">,</span> <span class="n">Button</span><span class="p">,</span> <span class="n">BooleanVar</span><span class="p">,</span> <span class="n">Checkbutton</span><span class="p">,</span> <span class="n">Text</span>
+
+<span class="c1"># For controlling computer cursor</span>
+<span class="kn">import</span> <span class="nn">pyautogui</span>
+
+<span class="c1"># for getting the screen resolution of the machine</span>
+<span class="kn">from</span> <span class="nn">get_res</span> <span class="kn">import</span> <span class="n">get_display_size</span>
+
+<span class="c1"># for check when to click</span>
+<span class="kn">from</span> <span class="nn">stopwatch</span> <span class="kn">import</span> <span class="n">StopWatch</span>
+
+<span class="c1"># for the connection with the coppeliasim scene </span>
+<span class="kn">from</span> <span class="nn">CoppeliaSim.scripts.kuka_controller</span> <span class="kn">import</span> <span class="n">KukaMobileRobot</span>
+<span class="kn">from</span> <span class="nn">CoppeliaSim.scripts.manipulator_controller</span> <span class="kn">import</span> <span class="n">ManipulatorController</span>
+
+<span class="c1"># for launching the coppeliasim scenes</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="Solution"><a class="viewcode-back" href="../index.html#solution.Solution">[docs]</a><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides the implementation of the code for the given tasks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MainApplication</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">win</span><span class="p">):</span>
+        <span class="c1"># taking the values of each of the checkboxes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_val</span> <span class="o">=</span> <span class="n">BooleanVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_val</span> <span class="o">=</span> <span class="n">BooleanVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_val</span> <span class="o">=</span> <span class="n">BooleanVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_val</span> <span class="o">=</span> <span class="n">BooleanVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_val</span> <span class="o">=</span> <span class="n">BooleanVar</span><span class="p">()</span>
+
+        <span class="c1"># Initialising a reference to the MainApplication class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">MainApplication</span>  
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">win</span> <span class="o">=</span> <span class="n">win</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span> <span class="o">=</span> <span class="mi">14</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># 1: if the cursor is just moving around, 2: if the cursor has a possible target, 3: definite target found and its time to click</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">1</span>  
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_real_width_height</span><span class="p">()</span>
+
+        <span class="c1"># Intializing the stopwatch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span> <span class="o">=</span> <span class="n">StopWatch</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_max</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">pyautogui</span><span class="o">.</span><span class="n">FAILSAFE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># to stop pyautogui from stopping when the cursor goes to the edges of the screen</span>
+
+        <span class="c1"># Checks if Coppeliasim scenes are launched</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_man_sim_launched</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_man_sim_launched</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kuka_sim_launched</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># to get the absolute path to the scenes </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+            <span class="s2">&quot;CoppeliaSim\scenes\PlanarManipulator3D.ttt&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+            <span class="s2">&quot;CoppeliaSim\scenes\ParallelTestv3.ttt&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+            <span class="s2">&quot;CoppeliaSim\scenes\kuka_robot_scene.ttt&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># to define the device to control</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_device</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_real_mouse</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_planar_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_parallel_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_kuka_robot</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_init_mouse_checkbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        initializing the checkboxes for the GUI</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Real Mouse checkbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_checkbox</span> <span class="o">=</span> <span class="n">Checkbutton</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Real Mouse&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_val</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_checkbox</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_checkbox</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Virtual Mouse checkbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_checkbox</span> <span class="o">=</span> <span class="n">Checkbutton</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Virtual Mouse&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_val</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_checkbox</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_checkbox</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Planar Manipulator checkbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_checkbox</span> <span class="o">=</span> <span class="n">Checkbutton</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Planar Manipulator&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_val</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_checkbox</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_checkbox</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Kuka mobile robot checkbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_checkbox</span> <span class="o">=</span> <span class="n">Checkbutton</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;KUKA Robot&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_val</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_checkbox</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_checkbox</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Parallel Manipulator checkbox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_checkbox</span> <span class="o">=</span> <span class="n">Checkbutton</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">win</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Parallel Manipulator(BETA)&quot;</span><span class="p">,</span>
+            <span class="n">variable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_val</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_checkbox</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_checkbox</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_mouse_select_button</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intializing a button for selection between device checkboxes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_control</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Select Device&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">select_device_clbk</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_control</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_control</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+            <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s2">&quot;nesw&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Solution.select_device_clbk"><a class="viewcode-back" href="../index.html#solution.Solution.select_device_clbk">[docs]</a>    <span class="k">def</span> <span class="nf">select_device_clbk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback function for the device-selection button to choose between checkboxes.</span>
+<span class="sd">        The callback launches the the coppeliasim scene for the chosen device. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># List to store states of selections for each device</span>
+        <span class="n">checkbox_vals</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_val</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_val</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_val</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_val</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_val</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1">#Loop to determine how many checkboxes are selected</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">checkbox</span> <span class="ow">in</span> <span class="n">checkbox_vals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">checkbox</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># If more or less than one checkbox has been selected, the GUI requests for only one to be selected.</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You need to pick only one of the options&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You need to pick one of the options&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">btn_num_joints</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_val</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_kuka_robot</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_planar_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_parallel_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_device</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if the real mouse would be used</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_real_mouse</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You have picked the Real Mouse&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtual_mouse_val</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_device</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># if the virtual mouse would be used</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You have picked the Virtual Mouse&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_val</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_kuka_robot</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_parallel_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_real_mouse</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You have picked the Planar Manipulator&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_planar_manipulator</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if a robot would be used</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_device</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planar_man_sim_launched</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;Press Play on Coppeliasim to start the connection</span><span class="se">\n</span><span class="s2"> when Coppeliasim is started&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;Press Play on Coppeliasim to start the connection&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">top</span>
+                <span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planar_man_sim_launched</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;CoppeliaSim will now start&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">top</span>
+                    <span class="p">)</span>
+
+                    <span class="n">os</span><span class="o">.</span><span class="n">startfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator_abspath</span><span class="p">)</span> <span class="c1"># launching the planar manipulator scene</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">planar_man_sim_launched</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator</span> <span class="o">=</span> <span class="n">ManipulatorController</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_val</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_kuka_robot</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_planar_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_real_mouse</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You have picked the Parallel Manipulator&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_device</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_parallel_manipulator</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_man_sim_launched</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;Press Play on Coppeliasim to start the connection</span><span class="se">\n</span><span class="s2"> when Coppeliasim is started&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;Press Play on Coppeliasim to start the connection&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">top</span>
+                <span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_man_sim_launched</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;CoppeliaSim will now start&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">top</span>
+                    <span class="p">)</span>
+
+                    <span class="n">os</span><span class="o">.</span><span class="n">startfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator_abspath</span><span class="p">)</span> <span class="c1"># launching the parallel manipulator scene</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parallel_man_sim_launched</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator</span> <span class="o">=</span> <span class="n">ManipulatorController</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_val</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_planar_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_parallel_manipulator</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_real_mouse</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You have picked the KuKa Mobile Robot&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_device</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_kuka_robot</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kuka_sim_launched</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;Press Play on Coppeliasim to start the connection</span><span class="se">\n</span><span class="s2"> when Coppeliasim is started&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;Press Play on Coppeliasim to start the connection&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">top</span>
+                <span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kuka_sim_launched</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">popupWindow</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="p">,</span>
+                        <span class="s2">&quot;CoppeliaSim will now start&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">MainApplication</span><span class="p">[</span><span class="s2">&quot;MainApplication&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">top</span>
+                    <span class="p">)</span>
+
+                    <span class="n">os</span><span class="o">.</span><span class="n">startfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot_abspath</span><span class="p">)</span> <span class="c1"># launching the kuka robot scene</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kuka_sim_launched</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot</span> <span class="o">=</span> <span class="n">KukaMobileRobot</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Solution.get_real_width_height"><a class="viewcode-back" href="../index.html#solution.Solution.get_real_width_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_real_width_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the resolution of the computer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># real_screen_width, real_screen_height = get_display_size()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_screen_width</span> <span class="o">=</span> <span class="n">pyautogui</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_screen_height</span> <span class="o">=</span> <span class="n">pyautogui</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">height</span></div>
+
+<div class="viewcode-block" id="Solution.move_real_mouse"><a class="viewcode-back" href="../index.html#solution.Solution.move_real_mouse">[docs]</a>    <span class="k">def</span> <span class="nf">move_real_mouse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function takes coordinates from the reaching class</span>
+<span class="sd">        and moves the real mouse of the computer</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (object): Object with attributes of the reaching task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Scaling virtual cursor coordinates to real screen coordinates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_x_coord</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_x</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_screen_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_y_coord</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_y</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_screen_height</span>
+
+        <span class="c1"># Moving the mouse using the developed coordinates</span>
+        <span class="n">pyautogui</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_x_coord</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_y_coord</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Solution.move_mobile_robot"><a class="viewcode-back" href="../index.html#solution.Solution.move_mobile_robot">[docs]</a>    <span class="k">def</span> <span class="nf">move_mobile_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the kuka Mobile robot in the coppeliasim scene.</span>
+<span class="sd">        With a delta time implementation of 2 seconds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (object): Object with attributes of the reaching task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_converter</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kuka_robot</span><span class="o">.</span><span class="n">move_mobile_robot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Solution.move_planar_manipulator"><a class="viewcode-back" href="../index.html#solution.Solution.move_planar_manipulator">[docs]</a>    <span class="k">def</span> <span class="nf">move_planar_manipulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the planar Manipulator robot in the coppeliasim scene with position control.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (object): Object with attributes of the reaching task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># x = (r.crs_x / r.width) * 0.9</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_x</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.7</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="c1"># y = (r.crs_y / r.width) * 0.9</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_y</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.9</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.9</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.9</span><span class="p">)</span>
+        <span class="n">target_coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planar_manipulator</span><span class="o">.</span><span class="n">move_manipulator_tip</span><span class="p">(</span><span class="n">target_coord</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Solution.move_parallel_manipulator"><a class="viewcode-back" href="../index.html#solution.Solution.move_parallel_manipulator">[docs]</a>    <span class="k">def</span> <span class="nf">move_parallel_manipulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moves the parallel Manipulator robot in the coppeliasim scene with position control.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (object): Object with attributes of the reaching task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># x = (r.crs_x / r.width) * 0.9</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_x</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.2</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.15</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.15</span><span class="p">)</span>
+        <span class="c1"># y = (r.crs_y / r.width) * 0.9</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_y</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.125</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">target_coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_manipulator</span><span class="o">.</span><span class="n">move_manipulator_tip</span><span class="p">(</span><span class="n">target_coord</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_coord_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the cursor coordinates (r) to cartesian coordinates of coppeliasim (x, y)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (object): Object with attributes of the reaching task</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            x (float), y (float): The converted coordinate values for cartesian space of the scene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_x</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">crs_y</span> <span class="o">/</span> <span class="n">r</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
+<div class="viewcode-block" id="Solution.click_real_mouse"><a class="viewcode-back" href="../index.html#solution.Solution.click_real_mouse">[docs]</a>    <span class="k">def</span> <span class="nf">click_real_mouse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intializes the left click of the mouse</span>
+<span class="sd">        First, checks mouse stability,</span>
+<span class="sd">        Based off stability for a set amount of time, initiates left click function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># Initial state, mouse not in clickable state.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_point</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_point_boundary</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_mouse_stability</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">select_point</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">&gt;=</span> <span class="mi">500</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_mouse_stability</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">2</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">select_point</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="c1"># State preparing for left click</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">&gt;=</span> <span class="mi">1000</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_mouse_stability</span><span class="p">()</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">&gt;=</span> <span class="mi">1500</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_mouse_stability</span><span class="p">()</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">&gt;=</span> <span class="mi">1850</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_mouse_stability</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">3</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span> <span class="c1"># final state, this is where the clicking happens!</span>
+            <span class="c1"># pyautogui.leftClick()</span>
+            <span class="n">pyautogui</span><span class="o">.</span><span class="n">mouseDown</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">pyautogui</span><span class="o">.</span><span class="n">mouseUp</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Click&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Solution.check_mouse_stability"><a class="viewcode-back" href="../index.html#solution.Solution.check_mouse_stability">[docs]</a>    <span class="k">def</span> <span class="nf">check_mouse_stability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the mouse is within the bounds of a section for selection</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Bool: True if it is in bounds - False if it is out of bounds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_min</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_x_coord</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_y_coord</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_max</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Solution.set_point_boundary"><a class="viewcode-back" href="../index.html#solution.Solution.set_point_boundary">[docs]</a>    <span class="k">def</span> <span class="nf">set_point_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Depending on the output of check_mouse_stability</span>
+<span class="sd">        Set new bounding box</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_x_coord</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_x_coord</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_max</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_y_coord</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">real_mouse_y_coord</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Solution.time_mouse_stability"><a class="viewcode-back" href="../index.html#solution.Solution.time_mouse_stability">[docs]</a>    <span class="k">def</span> <span class="nf">time_mouse_stability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Time interval that determines mouse stabilty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stopwatch_started</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="popupWindow"><a class="viewcode-back" href="../index.html#solution.popupWindow">[docs]</a><span class="k">class</span> <span class="nc">popupWindow</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    class that defines the popup tkinter window</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">master</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lbl</span> <span class="o">=</span> <span class="n">Label</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lbl</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btn</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Ok&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">btn</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Borgioli, Adekoya, Abdelmottaleb, Sode..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

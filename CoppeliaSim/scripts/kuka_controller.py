@@ -1,3 +1,14 @@
+"""
+.. module:: kuka_controller
+
+:platform: Unix
+:synopsis: Python module for the position controller of the kuka robot 
+
+.. moduleauthor:: Omotoye Shamsudeen Adekoya, Leonardo Borgioli, Yara Abdelmottaleb, Adedamola Sode.
+
+This script implements the position controller of the kuka robot
+"""
+
 import os
 import time
 from CoppeliaSim.scripts.modules import (
@@ -8,9 +19,6 @@ import os
 import random
 from math import sqrt
 
-# os.startfile(
-#     r"C:\Users\adeko\OneDrive\Desktop\markerlessBoMI_FaMa\CoppeliaSim\scenes\kuka_robot_scene.ttt"
-# )
 class KukaMobileRobot:
     """
     A class responsible for communicating with the Kuka mobile robot and controlling it

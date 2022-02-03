@@ -1,3 +1,14 @@
+"""
+.. module:: manipulator_controller
+
+:platform: Unix
+:synopsis: Python module for the position controller of the manipulator
+
+.. moduleauthor:: Omotoye Shamsudeen Adekoya, Leonardo Borgioli, Yara Abdelmottaleb, Adedamola Sode.
+
+This script implements the position controller of the manipulator
+"""
+
 import os
 import time
 from CoppeliaSim.scripts.modules import (
