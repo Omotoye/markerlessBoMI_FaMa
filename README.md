@@ -17,6 +17,9 @@
 
 for more information about the project objectives [click here](docs/assignment_instructions.pdf)
 
+## Link to Videos
+The different videos demonstrating the project can be found [here](https://drive.google.com/drive/folders/1mqPmZlZjmXwdSp38TwOnLGj_f8_i_d6y?usp=sharing)
+
 ## Code description
 
 The main features of the code may be found [click here](https://omotoye.github.io/markerlessBoMI_FaMa/)
