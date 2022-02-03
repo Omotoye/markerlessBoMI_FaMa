@@ -37,7 +37,7 @@ For example in the case of "planar manipulator":
 ## Available systems
 
 Three different robots may be controlled thanks to the BOMI system: 
-1. RRR Planar manipulator, made by us in the AUTOCAD program  [AUTODESKINVENTOR](https://www.autodesk.com/products/inventor-lt/overview?mktvar002=afc_fr_nmpi_ppc&AID=11043042&PID=8227014&gclsrc=aw.ds&ds_rl=1232386&ds_rl=1232407&ds_rl=1232410&SID=jkp_CjwKCAiAl-6PBhBCEiwAc2GOVKCKCVERaGmKnMb4ls1yjDRXe1MEFt0hfhDcdbmbsovZApgB4GwjxBoCvQ8QAvD_BwE&cjevent=4239846f852511ec8110083e0a180513&affname=8227014_11043042&cjdata=MXxZfDB8WXww
+1. RRR Planar manipulator, made by us in the AUTOCAD program  [AUTODESKINVENTOR](https://www.autodesk.com/products/inventor-lt/overview?mktvar002=afc_fr_nmpi_ppc&AID=11043042&PID=8227014&gclsrc=aw.ds&ds_rl=1232386&ds_rl=1232407&ds_rl=1232410&SID=jkp_CjwKCAiAl-6PBhBCEiwAc2GOVKCKCVERaGmKnMb4ls1yjDRXe1MEFt0hfhDcdbmbsovZApgB4GwjxBoCvQ8QAvD_BwE&cjevent=4239846f852511ec8110083e0a180513&affname=8227014_11043042&cjdata=MXxZfDB8WXww)
 
 The model is made by three parts which .obj file can be found in the `...\markerlessBoMI_FaMa-main\CoppeliaSim\Parts` folder. 
 
@@ -51,8 +51,13 @@ In Coppeliasim to reduce time computation some basic shapes as been used as kine
 The gripper instead is a model already implemented in Vrep. 
 
 2. 3-PRRR Planar Manipulator, it is still in "beta" as the dimentions are not satisfactory and allowing a small workspace. It's a parallel robot with only the prismatics joints actuated. The goal of such a device is to allows to have a large load without using too much power by limiting as possible the weight of acturtors and their effects on inertial. 
-To go further on this topic a optimisation algorithm could be used to optimize the different link length as suggested [on this paper](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997616/JPM_DirectKinematicsPlanarParallelManipulators.pdf).
 The Kinematic model of such devices can be easily found in litterature (for example [here](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997633/CIRP_Design_2010_Book_Caro_Chablat_UrRehman_Wenger.pdf)).
+To go further on this topic a optimisation algorithm could be used to optimize the different link length as suggested [on this paper](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997616/JPM_DirectKinematicsPlanarParallelManipulators.pdf).
+![image](https://user-images.githubusercontent.com/72743858/152417492-2eb13b37-a8b4-484b-9733-f9387f4b4648.png)
+
+3. Kukka Mobile Robot. 
+
+
 
 
 
