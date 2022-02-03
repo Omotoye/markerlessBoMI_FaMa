@@ -7,7 +7,15 @@ import os
 
 
 class ManipulatorController:
+    """
+    A class responsible for communicating with the manipulator on CoppeliaSim and controlling it
+    """
     def __init__(self):
+        """
+        Initialization of the ManipulatorController class
+        Establishes the connection. Sets the port at which to communicate with CoppeliaSim
+        Gets the handle for the target object attached to the tip of the manipulator     
+        """
         copp.simxFinish(-1)  # just in case, close all opened connections
 
         self.clientID = copp.simxStart(
@@ -24,6 +32,11 @@ class ManipulatorController:
         )
 
     def move_manipulator_tip(self, target):
+        """
+        responsible for moving the manipulator's tip to a given target position
+        :param target: target position for the tip (x,y,z)
+        :return:
+        """
         copp.simxSetObjectPosition(
             self.clientID, self.target_handle, -1, target, copp.simx_opmode_blocking
         )

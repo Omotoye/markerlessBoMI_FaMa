@@ -59,6 +59,11 @@ class MainApplication(tk.Frame):
         self.joints = np.zeros((5, 1))
         self.dr_mode = "ae"
         self.font_size = 14
+        
+        """
+        setting the label to Biomedical Project
+      
+        """
 
         self.lbl_tgt = Label(win, text="Biomedical Project")
         self.lbl_tgt.config(font=("Times new roman", 30))
@@ -161,15 +166,24 @@ class MainApplication(tk.Frame):
         self.lbl_tgt.grid(row=6, column=2, pady=(20, 30), columnspan=2, sticky="w")
 
         # !!!!!!!!!!!!! [ADD CODE HERE] Mouse control checkbox !!!!!!!!!!!!!
-
-        # Simulating a pointer to the MainApplication class
+        
+        """
+        Simulating a pointer to the MainApplication class
+      
+        """
         self.object_pointer = {"MainApplication": self}
 
-        # Initialising the Solution Class
+        """
+        Initialising the Solution Class
+      
+        """
         global solution
         solution = Solution(self.object_pointer, parent, win)
-
-        # Initialising the Mouse checkboxes and button
+        
+        """
+        Initialising the Mouse checkboxes and button
+      
+        """
         solution._init_mouse_checkbox()
         solution._init_mouse_select_button()
         #############################################################
@@ -366,8 +380,10 @@ class CustomizationApplication(tk.Frame):
         self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
         self.btn_close.config(font=("Arial", self.font_size))
         self.btn_close.grid(column=2, row=3, sticky="nesw", padx=(80, 0), pady=(40, 20))
-
-    # functions to retrieve values of textbox programmatically
+        
+    """
+    functions to retrieve values of textbox programmatically
+    """
     def retrieve_txt_rot(self):
         return self.txt_rot.get("1.0", "end-1c")
 
@@ -1042,16 +1058,20 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             # if mouse checkbox was enabled do not draw the reaching GUI,
             # only change coordinates of the computer cursor !!!!!!!!!!!!!!!!!!!!!
             # [ADD CODE HERE] !!!!!!!!!!!!!!!!!!!!!
+            ##Checking which device is selected
             if check_mouse == True:
-                # solution.move_mobile_robot(r)
+                # if the checkbox for real mouse is selected move the real mouse according to the body movement and activate the clicking 
                 if solution.check_real_mouse:
                     solution.move_real_mouse(r)
                     solution.click_real_mouse()
+                # else if the checkbox for planar manipulator is selected move the planar manipulator according to the body movement
                 elif solution.check_planar_manipulator:
                     solution.move_planar_manipulator(r)
+                # else if the checkbox for kuka robot is selected move the kuka according to the body movement
                 elif solution.check_kuka_robot:
                     solution.move_mobile_robot(r)
                 else:
+                    # else if the checkbox for the parallel manipulator is selected move the parallel manipulator according to the body movement
                     solution.move_parallel_manipulator(r)
 
             # else: do the reaching

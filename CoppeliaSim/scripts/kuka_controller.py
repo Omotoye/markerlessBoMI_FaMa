@@ -12,7 +12,17 @@ from math import sqrt
 #     r"C:\Users\adeko\OneDrive\Desktop\markerlessBoMI_FaMa\CoppeliaSim\scenes\kuka_robot_scene.ttt"
 # )
 class KukaMobileRobot:
+    """
+    A class responsible for communicating with the Kuka mobile robot and controlling it
+    """
     def __init__(self):
+        """
+        Initialization of the KukaMobileRobot class
+        Establishes the connection. Sets the port at which to communicate with CoppeliaSim
+        Gets the object handles for the four motors of the Kuka robot
+        Initialize current robot position to zero
+      
+        """
         copp.simxFinish(-1)  # just in case, close all opened connections
 
         self.clientID = copp.simxStart(
@@ -44,6 +54,11 @@ class KukaMobileRobot:
         self.SPEED = 1
 
     def get_required_velocity(self):
+        """
+        Computes the required x and y velocities to be sent to the robot based on the distance to the target
+        The velocities are multiplied by a gain SPEED
+      
+        """
         x, y = self.target
         print(
             f"x:{x}, y:{y}, current_position_x: {self.current_position_x}, current_position_y: {self.current_position_y}\n\n"
@@ -65,6 +80,14 @@ class KukaMobileRobot:
         return distance_to_target, required_x_vel, required_y_vel
 
     def move_mobile_robot(self, x, y):
+        """
+        responsible for moving the mobile robot given a target position x and y
+        It gets the required x and y velocities for the robot using the function get_required_velocity() 
+        and sets the motor velocity values based on these velocities
+        :param x: the target x position
+        :param y: the target y position
+        :return:
+        """
         if self.connected:
             rotVel = 0.0
 
