@@ -58,6 +58,9 @@ To go further on this topic a optimisation algorithm could be used to optimize t
 
 3. Kukka Mobile Robot, this system is composed by 4 actuated Swedish Wheels (allowing also a translation along the perpedicular axis to the chassis).
 
+![image](https://user-images.githubusercontent.com/72743858/152420317-4648a47d-70bf-4f0a-8623-e3362d1847dc.png)
+
+
 
 
 
