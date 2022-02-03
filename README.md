@@ -19,7 +19,7 @@ for more information about the project objectives [click here](docs/assignment_i
 
 ## Code description
 
-The main features of the code may be found [here](https://omotoye.github.io/markerlessBoMI_FaMa/)
+The main features of the code may be found [click here](https://omotoye.github.io/markerlessBoMI_FaMa/)
 
 ## User Guide
 
