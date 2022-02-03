@@ -50,6 +50,8 @@ In Coppeliasim to reduce time computation some basic shapes as been used as kine
 
 The gripper instead is a model already implemented in Vrep. 
 
+2. 3PRRR Planar Manipulator, it is still in "beta" as the dimentions are not satisfactory and allowing a small workspace. It's a parallel robot with only the prismatics joints actuated. 
+
 
 
 
