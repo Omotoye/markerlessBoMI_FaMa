@@ -34,3 +34,10 @@ For example in the case of "planar manipulator":
 - Execute the calibration and then the practice as in the previous cases (this last step may take some times).
 - Now by moving the head the robot should move accordigly.
 
+## Available systems
+
+Three different robots may be controlled thanks to the BOMI system: 
+1. RRR Planar manipulator, made in the AUTOCAD program  [AUTODESKINVENTOR](https://www.autodesk.com/products/inventor-lt/overview?mktvar002=afc_fr_nmpi_ppc&AID=11043042&PID=8227014&gclsrc=aw.ds&ds_rl=1232386&ds_rl=1232407&ds_rl=1232410&SID=jkp_CjwKCAiAl-6PBhBCEiwAc2GOVKCKCVERaGmKnMb4ls1yjDRXe1MEFt0hfhDcdbmbsovZApgB4GwjxBoCvQ8QAvD_BwE&cjevent=4239846f852511ec8110083e0a180513&affname=8227014_11043042&cjdata=MXxZfDB8WXww). The model is made by three parts which .obj file can be found in the `...\markerlessBoMI_FaMa-main\CoppeliaSim\Parts` folder. 
+![image](https://user-images.githubusercontent.com/72743858/152412787-5c7ae4e0-c41f-43f7-bfe8-00d0dc972061.png)
+
+
