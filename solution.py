@@ -31,7 +31,7 @@ class Solution:
         )
         self.parent = parent
         self.win = win
-        self.font_size = 18
+        self.font_size = 14
         self.size = (1, 1)
         self.state = 1  # 1: if the cursor is just moving around, 2: if the cursor has a possible target, 3: definite target found and its time to click
         self.get_real_width_height()
@@ -61,7 +61,7 @@ class Solution:
         )
         self.real_mouse_checkbox.config(font=("Arial", self.font_size))
         self.real_mouse_checkbox.grid(
-            row=0, column=2, padx=(0, 40), pady=30, sticky="w"
+            row=1, column=2, padx=(0, 40), pady=30, sticky="w"
         )
 
         # Virtual Mouse checkbox
@@ -70,7 +70,7 @@ class Solution:
         )
         self.virtual_mouse_checkbox.config(font=("Arial", self.font_size))
         self.virtual_mouse_checkbox.grid(
-            row=0, column=3, padx=(0, 40), pady=30, sticky="w"
+            row=1, column=3, padx=(0, 40), pady=30, sticky="w"
         )
 
         # Planar Manipulator checkbox
@@ -79,7 +79,7 @@ class Solution:
         )
         self.planar_manipulator_checkbox.config(font=("Arial", self.font_size))
         self.planar_manipulator_checkbox.grid(
-            row=0, column=4, padx=(0, 40), pady=30, sticky="w"
+            row=1, column=4, padx=(0, 40), pady=30, sticky="w"
         )
 
         # Parallel Manipulator checkbox
@@ -90,7 +90,7 @@ class Solution:
         )
         self.parallel_manipulator_checkbox.config(font=("Arial", self.font_size))
         self.parallel_manipulator_checkbox.grid(
-            row=0, column=5, padx=(0, 40), pady=30, sticky="w"
+            row=1, column=5, padx=(0, 40), pady=30, sticky="w"
         )
 
     def _init_mouse_select_button(self):
@@ -98,9 +98,9 @@ class Solution:
         self.mouse_control = Button(
             self.parent, text="Select Device", command=self.select_device_clbk
         )
-        self.mouse_control.config(font=("Arial", self.font_size))
+        self.mouse_control.config(font=("Arial", self.font_size,"bold"))
         self.mouse_control.grid(
-            row=0, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
+            row=1, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
         )
 
     def select_device_clbk(self):

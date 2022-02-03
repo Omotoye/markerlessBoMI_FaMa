@@ -15,6 +15,7 @@ import cv2
 # For GUI
 import tkinter as tk
 from tkinter import Label, Button, BooleanVar, Checkbutton, Text
+import webbrowser
 
 # For pygame
 import pygame
@@ -57,103 +58,107 @@ class MainApplication(tk.Frame):
         self.num_joints = 0
         self.joints = np.zeros((5, 1))
         self.dr_mode = "ae"
-        self.font_size = 18
-
+        self.font_size = 14
+        
+        self.lbl_tgt = Label(win, text="Biomedical Project")
+        self.lbl_tgt.config(font=("Times new roman", 30))
+        self.lbl_tgt.grid(row=0, column=2, pady=(20, 30), columnspan=2, sticky="w")
+        
         self.btn_num_joints = Button(
             parent, text="Select Joints", command=self.select_joints
         )
-        self.btn_num_joints.config(font=("Arial", self.font_size))
+        self.btn_num_joints.config(font=("Arial", self.font_size, "bold"))
         self.btn_num_joints["state"] = "disabled"
         self.btn_num_joints.grid(
-            row=1, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
+            row=2, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
         )
 
         # set checkboxes for selecting joints
         self.check_nose = BooleanVar()
         self.check1 = Checkbutton(win, text="Nose", variable=self.check_nose)
         self.check1.config(font=("Arial", self.font_size))
-        self.check1.grid(row=1, column=2, padx=(0, 40), pady=30, sticky="w")
+        self.check1.grid(row=2, column=2, padx=(0, 40), pady=30, sticky="w")
 
         self.check_eyes = BooleanVar()
         self.check2 = Checkbutton(win, text="Eyes", variable=self.check_eyes)
         self.check2.config(font=("Arial", self.font_size))
-        self.check2.grid(row=1, column=3, padx=(0, 40), pady=30, sticky="w")
+        self.check2.grid(row=2, column=3, padx=(0, 40), pady=30, sticky="w")
 
         self.check_shoulders = BooleanVar()
         self.check3 = Checkbutton(win, text="Shoulders", variable=self.check_shoulders)
         self.check3.config(font=("Arial", self.font_size))
-        self.check3.grid(row=1, column=4, padx=(0, 30), pady=30, sticky="w")
+        self.check3.grid(row=2, column=4, padx=(0, 30), pady=30, sticky="w")
 
         self.check_forefinger = BooleanVar()
         self.check4 = Checkbutton(
             win, text="Right Forefinger", variable=self.check_forefinger
         )
         self.check4.config(font=("Arial", self.font_size))
-        self.check4.grid(row=1, column=5, padx=(0, 20), pady=30, sticky="w")
+        self.check4.grid(row=2, column=5, padx=(0, 20), pady=30, sticky="w")
 
         self.check_fingers = BooleanVar()
         self.check5 = Checkbutton(win, text="Fingers", variable=self.check_fingers)
         self.check5.config(font=("Arial", self.font_size))
-        self.check5.grid(row=1, column=6, padx=(0, 20), pady=30, sticky="nesw")
+        self.check5.grid(row=2, column=6, padx=(0, 20), pady=30, sticky="nesw")
 
         self.btn_calib = Button(parent, text="Calibration", command=self.calibration)
         self.btn_calib["state"] = "disabled"
-        self.btn_calib.config(font=("Arial", self.font_size))
+        self.btn_calib.config(font=("Arial", self.font_size,"bold"))
         self.btn_calib.grid(
-            row=2, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+            row=3, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
         self.calib_duration = 30000
 
         # Calibration time remaining
         self.lbl_calib = Label(win, text="Calibration time: ")
         self.lbl_calib.config(font=("Arial", self.font_size))
-        self.lbl_calib.grid(row=2, column=2, columnspan=2, pady=(20, 30), sticky="w")
+        self.lbl_calib.grid(row=3, column=2, columnspan=2, pady=(20, 30), sticky="w")
 
         # BoMI map button and checkboxes
         self.btn_map = Button(parent, text="Calculate BoMI Map", command=self.train_map)
         self.btn_map["state"] = "disabled"
-        self.btn_map.config(font=("Arial", self.font_size))
+        self.btn_map.config(font=("Arial", self.font_size,"bold"))
         self.btn_map.grid(
-            row=3, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+            row=4, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
 
         self.check_pca = BooleanVar(value=True)
         self.check_pca1 = Checkbutton(win, text="PCA", variable=self.check_pca)
         self.check_pca1.config(font=("Arial", self.font_size))
-        self.check_pca1.grid(row=3, column=2, padx=(0, 20), pady=(20, 30), sticky="w")
+        self.check_pca1.grid(row=4, column=2, padx=(0, 20), pady=(20, 30), sticky="w")
 
         self.check_ae = BooleanVar()
         self.check_ae1 = Checkbutton(win, text="AE", variable=self.check_ae)
         self.check_ae1.config(font=("Arial", self.font_size))
-        self.check_ae1.grid(row=3, column=3, padx=(0, 20), pady=(20, 30), sticky="w")
+        self.check_ae1.grid(row=4, column=3, padx=(0, 20), pady=(20, 30), sticky="w")
 
         self.check_vae = BooleanVar()
         self.check_vae1 = Checkbutton(
             win, text="Variational AE", variable=self.check_vae
         )
         self.check_vae1.config(font=("Arial", self.font_size))
-        self.check_vae1.grid(row=3, column=4, pady=(20, 30), sticky="w")
+        self.check_vae1.grid(row=4, column=4, pady=(20, 30), sticky="w")
 
         self.btn_custom = Button(
             parent, text="Customization", command=self.customization
         )
         self.btn_custom["state"] = "disabled"
-        self.btn_custom.config(font=("Arial", self.font_size))
+        self.btn_custom.config(font=("Arial", self.font_size,"bold"))
         self.btn_custom.grid(
-            row=4, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+            row=5, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
 
         self.btn_start = Button(parent, text="Practice", command=self.start)
         self.btn_start["state"] = "disabled"
-        self.btn_start.config(font=("Arial", self.font_size))
+        self.btn_start.config(font=("Arial", self.font_size,"bold"))
         self.btn_start.grid(
-            row=5, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+            row=6, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
 
         # set label for number of target remaining
         self.lbl_tgt = Label(win, text="Remaining targets: ")
         self.lbl_tgt.config(font=("Arial", self.font_size))
-        self.lbl_tgt.grid(row=5, column=2, pady=(20, 30), columnspan=2, sticky="w")
+        self.lbl_tgt.grid(row=6, column=2, pady=(20, 30), columnspan=2, sticky="w")
 
         # !!!!!!!!!!!!! [ADD CODE HERE] Mouse control checkbox !!!!!!!!!!!!!
 
@@ -170,11 +175,25 @@ class MainApplication(tk.Frame):
         #############################################################
 
         self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
-        self.btn_close.config(font=("Arial", self.font_size))
+        self.btn_close.config(font=("Arial", self.font_size,"bold"))
         self.btn_close.grid(
-            row=6, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+            row=7, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
-
+        
+        
+        self.github_link = Button(parent, text="Link to gihub repository",command=self.github_callback)
+        self.github_link.config(font=("Arial", 12,"italic"))
+        self.github_link.grid(
+            row=7, column=2, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
+        )
+    def github_callback(self):
+        webbrowser.open("https://github.com/Omotoye/markerlessBoMI_FaMa",new=1)
+        
+        
+        
+        
+        
+        
     # Count number of joints selected
     def select_joints(self):
         nose_enabled = self.check_nose.get()
@@ -1315,9 +1334,9 @@ if __name__ == "__main__":
     # initialize mainApplication tkinter window
     win = tk.Tk()
     win.title("BoMI Settings")
-
-    window_width = 1366  # 1200
-    window_height = 768  # 520
+	#Brain-Computer-Interface
+    window_width = 1536  # 1200
+    window_height = 864  # 520
 
     screen_width = win.winfo_screenwidth()
     screen_height = win.winfo_screenheight()
@@ -1328,7 +1347,13 @@ if __name__ == "__main__":
     win.geometry(
         "{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate)
     )
-
+    # Add image file
+    bg = tk.PhotoImage(file = "elctrobrain.png")
+      
+    # Show image using label
+    label1 = Label( win, image = bg)
+    label1.place(x = 0, y = 0)
+    
     MainApplication(win)
 
     # initiate Tkinter mainloop
