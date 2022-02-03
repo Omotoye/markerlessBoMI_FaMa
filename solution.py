@@ -139,6 +139,9 @@ class Solution:
         else:
             self.MainApplication["MainApplication"].btn_num_joints["state"] = "normal"
             if self.real_mouse_val.get():
+                self.check_kuka_robot = False
+                self.check_planar_manipulator = False
+                self.check_parallel_manipulator = False
                 self.check_device = True  # if the real mouse would be used
                 self.check_real_mouse = True
                 print("You have picked the Real Mouse")
@@ -146,6 +149,9 @@ class Solution:
                 self.check_device = False  # if the virtual mouse would be used
                 print("You have picked the Virtual Mouse")
             elif self.planar_manipulator_val.get():
+                self.check_kuka_robot = False
+                self.check_parallel_manipulator = False
+                self.check_real_mouse = False
                 print("You have picked the Planar Manipulator")
                 self.check_planar_manipulator = True  # if a robot would be used
                 self.check_device = True
@@ -177,6 +183,9 @@ class Solution:
                     time.sleep(5)
                 self.planar_manipulator = ManipulatorController()
             elif self.parallel_manipulator_val.get():
+                self.check_kuka_robot = False
+                self.check_planar_manipulator = False
+                self.check_real_mouse = False
                 print("You have picked the Parallel Manipulator")
                 self.check_device = True
                 self.check_parallel_manipulator = True
@@ -209,6 +218,9 @@ class Solution:
                     time.sleep(5)
                 self.parallel_manipulator = ManipulatorController()
             elif self.kuka_robot_val.get():
+                self.check_planar_manipulator = False
+                self.check_parallel_manipulator = False
+                self.check_real_mouse = False
                 print("You have picked the KuKa Mobile Robot")
                 self.check_device = True
                 self.check_kuka_robot = True
@@ -319,7 +331,7 @@ class Solution:
                     self.state == 1
                     self.stopwatch.pause()
                     self.stopwatch_started = False
-            if self.stopwatch.elapsed_time >= 2000:
+            if self.stopwatch.elapsed_time >= 1850:
                 if self.check_mouse_stability():
                     self.state = 3
                 else:
@@ -328,7 +340,10 @@ class Solution:
                 self.stopwatch_started = False
 
         if self.state == 3:
-            pyautogui.leftClick()
+            # pyautogui.leftClick()
+            pyautogui.mouseDown()
+            time.sleep(1)
+            pyautogui.mouseUp()
             print("Click")
             self.state = 1
 
