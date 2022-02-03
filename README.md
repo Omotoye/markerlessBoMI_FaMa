@@ -51,8 +51,9 @@ In Coppeliasim to reduce time computation some basic shapes as been used as kine
 The gripper instead is a model already implemented in Vrep. 
 
 2. 3-PRRR Planar Manipulator, it is still in "beta" as the dimentions are not satisfactory and allowing a small workspace. It's a parallel robot with only the prismatics joints actuated. The goal of such a device is to allows to have a large load without using too much power by limiting as possible the weight of acturtors and their effects on inertial. 
-The Kinematic model of such devices can be easily found in litterature (for example [here](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997633/CIRP_Design_2010_Book_Caro_Chablat_UrRehman_Wenger.pdf)).
-To go further on this topic a optimisation algorithm could be used to optimize the different links lengths as suggested [on this paper](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997616/JPM_DirectKinematicsPlanarParallelManipulators.pdf).
+The Kinematic model of such devices can be easily found in litterature (for example [here](
+https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997616/JPM_DirectKinematicsPlanarParallelManipulators.pdf)).
+To go further on this topic a optimisation algorithm could be used to optimize the different links lengths as suggested [on this paper](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997633/CIRP_Design_2010_Book_Caro_Chablat_UrRehman_Wenger.pdf).
 
 ![image](https://user-images.githubusercontent.com/72743858/152417492-2eb13b37-a8b4-484b-9733-f9387f4b4648.png)
 
