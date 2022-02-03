@@ -59,11 +59,11 @@ class MainApplication(tk.Frame):
         self.joints = np.zeros((5, 1))
         self.dr_mode = "ae"
         self.font_size = 14
-        
+
         self.lbl_tgt = Label(win, text="Biomedical Project")
         self.lbl_tgt.config(font=("Times new roman", 30))
         self.lbl_tgt.grid(row=0, column=2, pady=(20, 30), columnspan=2, sticky="w")
-        
+
         self.btn_num_joints = Button(
             parent, text="Select Joints", command=self.select_joints
         )
@@ -103,7 +103,7 @@ class MainApplication(tk.Frame):
 
         self.btn_calib = Button(parent, text="Calibration", command=self.calibration)
         self.btn_calib["state"] = "disabled"
-        self.btn_calib.config(font=("Arial", self.font_size,"bold"))
+        self.btn_calib.config(font=("Arial", self.font_size, "bold"))
         self.btn_calib.grid(
             row=3, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
@@ -117,7 +117,7 @@ class MainApplication(tk.Frame):
         # BoMI map button and checkboxes
         self.btn_map = Button(parent, text="Calculate BoMI Map", command=self.train_map)
         self.btn_map["state"] = "disabled"
-        self.btn_map.config(font=("Arial", self.font_size,"bold"))
+        self.btn_map.config(font=("Arial", self.font_size, "bold"))
         self.btn_map.grid(
             row=4, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
@@ -143,14 +143,14 @@ class MainApplication(tk.Frame):
             parent, text="Customization", command=self.customization
         )
         self.btn_custom["state"] = "disabled"
-        self.btn_custom.config(font=("Arial", self.font_size,"bold"))
+        self.btn_custom.config(font=("Arial", self.font_size, "bold"))
         self.btn_custom.grid(
             row=5, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
 
         self.btn_start = Button(parent, text="Practice", command=self.start)
         self.btn_start["state"] = "disabled"
-        self.btn_start.config(font=("Arial", self.font_size,"bold"))
+        self.btn_start.config(font=("Arial", self.font_size, "bold"))
         self.btn_start.grid(
             row=6, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
@@ -175,25 +175,22 @@ class MainApplication(tk.Frame):
         #############################################################
 
         self.btn_close = Button(parent, text="Close", command=parent.destroy, bg="red")
-        self.btn_close.config(font=("Arial", self.font_size,"bold"))
+        self.btn_close.config(font=("Arial", self.font_size, "bold"))
         self.btn_close.grid(
             row=7, column=0, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
-        
-        
-        self.github_link = Button(parent, text="Link to gihub repository",command=self.github_callback)
-        self.github_link.config(font=("Arial", 12,"italic"))
+
+        self.github_link = Button(
+            parent, text="Link to gihub repository", command=self.github_callback
+        )
+        self.github_link.config(font=("Arial", 12, "italic"))
         self.github_link.grid(
             row=7, column=2, columnspan=2, padx=20, pady=(20, 30), sticky="nesw"
         )
+
     def github_callback(self):
-        webbrowser.open("https://github.com/Omotoye/markerlessBoMI_FaMa",new=1)
-        
-        
-        
-        
-        
-        
+        webbrowser.open("https://github.com/Omotoye/markerlessBoMI_FaMa", new=1)
+
     # Count number of joints selected
     def select_joints(self):
         nose_enabled = self.check_nose.get()
@@ -1048,11 +1045,12 @@ def start_reaching(drPath, lbl_tgt, num_joints, joints, dr_mode, check_mouse):
             if check_mouse == True:
                 # solution.move_mobile_robot(r)
                 if solution.check_real_mouse:
-                    #solution.move_real_mouse(r)
-                    #solution.click_real_mouse()
-                    solution.move_mobile_robot(r)
+                    solution.move_real_mouse(r)
+                    solution.click_real_mouse()
                 elif solution.check_planar_manipulator:
                     solution.move_planar_manipulator(r)
+                elif solution.check_kuka_robot:
+                    solution.move_mobile_robot(r)
                 else:
                     solution.move_parallel_manipulator(r)
 
@@ -1335,7 +1333,7 @@ if __name__ == "__main__":
     # initialize mainApplication tkinter window
     win = tk.Tk()
     win.title("BoMI Settings")
-	#Brain-Computer-Interface
+    # Brain-Computer-Interface
     window_width = 1536  # 1200
     window_height = 864  # 520
 
@@ -1349,12 +1347,12 @@ if __name__ == "__main__":
         "{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate)
     )
     # Add image file
-    bg = tk.PhotoImage(file = "elctrobrain.png")
-      
+    bg = tk.PhotoImage(file="elctrobrain.png")
+
     # Show image using label
-    label1 = Label( win, image = bg)
-    label1.place(x = 0, y = 0)
-    
+    label1 = Label(win, image=bg)
+    label1.place(x=0, y=0)
+
     MainApplication(win)
 
     # initiate Tkinter mainloop

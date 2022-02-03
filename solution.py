@@ -27,6 +27,7 @@ class Solution:
         self.virtual_mouse_val = BooleanVar()
         self.planar_manipulator_val = BooleanVar()
         self.parallel_manipulator_val = BooleanVar()
+        self.kuka_robot_val = BooleanVar()
         self.MainApplication = (
             MainApplication  # Initialising a reference to the MainApplication class
         )
@@ -41,21 +42,24 @@ class Solution:
         self.select_point = False
         self.x_min, self.x_max, self.y_min, self.y_max = 0, 0, 0, 0
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
-       
-        self.mobile_robot = KukaMobileRobot()
-        
+
         self.parallel_man_sim_launched = False
         self.planar_man_sim_launched = False
+        self.kuka_sim_launched = False
         self.planar_manipulator_abspath = os.path.abspath(
             "CoppeliaSim\scenes\PlanarManipulator3D.ttt"
         )
         self.parallel_manipulator_abspath = os.path.abspath(
             "CoppeliaSim\scenes\ParallelTestv3.ttt"
         )
+        self.kuka_robot_abspath = os.path.abspath(
+            "CoppeliaSim\scenes\kuka_robot_scene.ttt"
+        )
         self.check_device = False
         self.check_real_mouse = False
         self.check_planar_manipulator = False
         self.check_parallel_manipulator = False
+        self.check_kuka_robot = False
 
     def _init_mouse_checkbox(self):
         # Real Mouse checkbox
@@ -85,6 +89,15 @@ class Solution:
             row=1, column=4, padx=(0, 40), pady=30, sticky="w"
         )
 
+        # Kuka mobile robot checkbox
+        self.kuka_robot_checkbox = Checkbutton(
+            self.win, text="KUKA Robot", variable=self.kuka_robot_val
+        )
+        self.kuka_robot_checkbox.config(font=("Arial", self.font_size))
+        self.kuka_robot_checkbox.grid(
+            row=1, column=5, padx=(0, 40), pady=30, sticky="w"
+        )
+
         # Parallel Manipulator checkbox
         self.parallel_manipulator_checkbox = Checkbutton(
             self.win,
@@ -93,7 +106,7 @@ class Solution:
         )
         self.parallel_manipulator_checkbox.config(font=("Arial", self.font_size))
         self.parallel_manipulator_checkbox.grid(
-            row=1, column=5, padx=(0, 40), pady=30, sticky="w"
+            row=1, column=6, padx=(0, 40), pady=30, sticky="w"
         )
 
     def _init_mouse_select_button(self):
@@ -101,7 +114,7 @@ class Solution:
         self.mouse_control = Button(
             self.parent, text="Select Device", command=self.select_device_clbk
         )
-        self.mouse_control.config(font=("Arial", self.font_size,"bold"))
+        self.mouse_control.config(font=("Arial", self.font_size, "bold"))
         self.mouse_control.grid(
             row=1, column=0, columnspan=2, padx=20, pady=30, sticky="nesw"
         )
@@ -112,6 +125,7 @@ class Solution:
             self.virtual_mouse_val,
             self.planar_manipulator_val,
             self.parallel_manipulator_val,
+            self.kuka_robot_val,
         ]
         count = 0
         for checkbox in checkbox_vals:
@@ -194,6 +208,38 @@ class Solution:
                     self.parallel_man_sim_launched = True
                     time.sleep(5)
                 self.parallel_manipulator = ManipulatorController()
+            elif self.kuka_robot_val.get():
+                print("You have picked the KuKa Mobile Robot")
+                self.check_device = True
+                self.check_kuka_robot = True
+                if self.kuka_sim_launched == False:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "Press Play on Coppeliasim to start the connection\n when Coppeliasim is started",
+                    )
+                else:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "Press Play on Coppeliasim to start the connection",
+                    )
+
+                self.MainApplication["MainApplication"].master.wait_window(
+                    self.MainApplication["MainApplication"].w.top
+                )
+                time.sleep(1)
+                if self.kuka_sim_launched == False:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "CoppeliaSim will now start",
+                    )
+                    self.MainApplication["MainApplication"].master.wait_window(
+                        self.MainApplication["MainApplication"].w.top
+                    )
+
+                    os.startfile(self.kuka_robot_abspath)
+                    self.kuka_sim_launched = True
+                    time.sleep(5)
+                self.kuka_robot = KukaMobileRobot()
 
     def get_real_width_height(self):
         # real_screen_width, real_screen_height = get_display_size()
@@ -213,11 +259,11 @@ class Solution:
             self.stopwatch_started = True
 
         if self.stopwatch.elapsed_time >= 2000:
-          #  x, y = self._coord_converter(
-           #     ((r.crs_x / r.width) * , ((r.crs_y / r.width) * 4)
-           # )
-            x,y=self._coord_converter(r)
-            self.mobile_robot.move_mobile_robot(x, y)
+            #  x, y = self._coord_converter(
+            #     ((r.crs_x / r.width) * , ((r.crs_y / r.width) * 4)
+            # )
+            x, y = self._coord_converter(r)
+            self.kuka_robot.move_mobile_robot(x, y)
             self.stopwatch_started = False
 
     def move_planar_manipulator(self, r):
@@ -236,15 +282,15 @@ class Solution:
         target_coord = [x, y, 0.35]
         self.parallel_manipulator.move_manipulator_tip(target_coord)
 
-    def _coord_converter(self,r):
+    def _coord_converter(self, r):
         x = (r.crs_x / r.width) * (2 - (-2)) + (-2)
         # y = (r.crs_y / r.width) * 0.9
         y = (r.crs_y / r.height) * (2 - (-2)) + (-2)
 
         #  x = x - 2
-       # if (0 <= y) and (y < 2):
+        # if (0 <= y) and (y < 2):
         #    y = 2 + y
-        #else:
+        # else:
         #    y = 2 - y
         return x, y
 
