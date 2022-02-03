@@ -26,8 +26,11 @@ for more information about the project objectives [click here](docs/assignment_i
 
 3. It works exactly as the previous one the main changes are in the `select device` part. 3 other devices can now be controlled in a really similar way. 
 For example in the case of "planar manipulator":
--By selecting it two successive windows will appear and Coppeliasim will open on your computer as follow: 
+
+- By selecting it two successive windows will appear and Coppeliasim will open on your computer as follow: 
 ![image](https://user-images.githubusercontent.com/72743858/152410958-648de308-8578-4f6c-8cb3-b421449068ae.png)
 
--Press the play ![image](https://user-images.githubusercontent.com/72743858/152411034-623de161-0f2d-41fe-839e-fb4128cd6f56.png) button to allows to link coppelia with the script.
+- Press the play ![image](https://user-images.githubusercontent.com/72743858/152411034-623de161-0f2d-41fe-839e-fb4128cd6f56.png) button to allows to link coppelia with the script.
+- Execute the calibration and then the practice as in the previous cases (this last step may take some times).
+- Now by moving the head the robot should move accordigly.
 
