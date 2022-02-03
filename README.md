@@ -41,7 +41,8 @@ Three different robots may be controlled thanks to the BOMI system:
 
 The model is made by three parts which .obj file can be found in the `...\markerlessBoMI_FaMa-main\CoppeliaSim\Parts` folder. 
 
-![image](https://user-images.githubusercontent.com/72743858/152412787-5c7ae4e0-c41f-43f7-bfe8-00d0dc972061.png).
+![image](https://user-images.githubusercontent.com/72743858/152412787-5c7ae4e0-c41f-43f7-bfe8-00d0dc972061.png)
+
 In Coppeliasim to reduce time computation some basic shapes as been used as kinematic meshes, and the 3D meshes as visible ones. 
 
 ![image](https://user-images.githubusercontent.com/72743858/152413574-219d271b-4a1f-4fd2-af63-980a7db69f22.png)
