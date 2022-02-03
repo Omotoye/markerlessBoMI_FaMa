@@ -53,9 +53,10 @@ The gripper instead is a model already implemented in Vrep.
 2. 3-PRRR Planar Manipulator, it is still in "beta" as the dimentions are not satisfactory and allowing a small workspace. It's a parallel robot with only the prismatics joints actuated. The goal of such a device is to allows to have a large load without using too much power by limiting as possible the weight of acturtors and their effects on inertial. 
 The Kinematic model of such devices can be easily found in litterature (for example [here](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997633/CIRP_Design_2010_Book_Caro_Chablat_UrRehman_Wenger.pdf)).
 To go further on this topic a optimisation algorithm could be used to optimize the different link length as suggested [on this paper](https://github.com/Omotoye/markerlessBoMI_FaMa/files/7997616/JPM_DirectKinematicsPlanarParallelManipulators.pdf).
+
 ![image](https://user-images.githubusercontent.com/72743858/152417492-2eb13b37-a8b4-484b-9733-f9387f4b4648.png)
 
-3. Kukka Mobile Robot. 
+3. Kukka Mobile Robot, this system is composed by 4 actuated Swedish Wheels (allowing also a translation along the perpedicular axis to the chassis).
 
 
 
