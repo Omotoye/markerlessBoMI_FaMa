@@ -41,15 +41,18 @@ class KukaMobileRobot:
         self.current_position_x = 0.0
         self.current_position_y = 0.0
         self.distance_to_target = 0.0
-        self.SPEED = 10
+        self.SPEED = 1
 
     def get_required_velocity(self):
         x, y = self.target
         print(
             f"x:{x}, y:{y}, current_position_x: {self.current_position_x}, current_position_y: {self.current_position_y}\n\n"
         )
-        dist_x = abs(x - self.current_position_x)
-        dist_y = abs(y - self.current_position_y)
+        #dist_x = abs(x - self.current_position_x)
+        #dist_y = abs(y - self.current_position_y)
+        
+        dist_x=x - self.current_position_x
+        dist_y = y - self.current_position_y
 
         self.current_position_x = x
         self.current_position_y = y
