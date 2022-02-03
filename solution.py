@@ -41,7 +41,8 @@ class Solution:
         self.x_min, self.x_max, self.y_min, self.y_max = 0, 0, 0, 0
         pyautogui.FAILSAFE = False  # to stop pyautogui from stopping when the cursor goes to the edges of the screen
         # self.mobile_robot = KukaMobileRobot()
-        self.simulation_launched = False
+        self.parallel_man_sim_launched = False
+        self.planar_man_sim_launched = False
         self.planar_manipulator_abspath = os.path.abspath(
             "CoppeliaSim\scenes\PlanarManipulator3D.ttt"
         )
@@ -131,15 +132,21 @@ class Solution:
                 print("You have picked the Planar Manipulator")
                 self.check_planar_manipulator = True  # if a robot would be used
                 self.check_device = True
-                self.MainApplication["MainApplication"].w = popupWindow(
-                    self.MainApplication["MainApplication"].master,
-                    "Press Play on Coppeliasim to start the connection\n when Coppeliasim is started",
-                )
+                if self.planar_man_sim_launched == False:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "Press Play on Coppeliasim to start the connection\n when Coppeliasim is started",
+                    )
+                else:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "Press Play on Coppeliasim to start the connection",
+                    )
                 self.MainApplication["MainApplication"].master.wait_window(
                     self.MainApplication["MainApplication"].w.top
                 )
                 time.sleep(1)
-                if self.simulation_launched == False:
+                if self.planar_man_sim_launched == False:
                     self.MainApplication["MainApplication"].w = popupWindow(
                         self.MainApplication["MainApplication"].master,
                         "CoppeliaSim will now start",
@@ -149,22 +156,29 @@ class Solution:
                     )
 
                     os.startfile(self.planar_manipulator_abspath)
-                    self.simulation_launched = True
+                    self.planar_man_sim_launched = True
                     time.sleep(5)
                 self.planar_manipulator = ManipulatorController()
             elif self.parallel_manipulator_val.get():
                 print("You have picked the Parallel Manipulator")
                 self.check_device = True
                 self.check_parallel_manipulator = True
-                self.MainApplication["MainApplication"].w = popupWindow(
-                    self.MainApplication["MainApplication"].master,
-                    "Press Play on Coppeliasim to start the connection\n when Coppeliasim is started",
-                )
+                if self.parallel_man_sim_launched == False:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "Press Play on Coppeliasim to start the connection\n when Coppeliasim is started",
+                    )
+                else:
+                    self.MainApplication["MainApplication"].w = popupWindow(
+                        self.MainApplication["MainApplication"].master,
+                        "Press Play on Coppeliasim to start the connection",
+                    )
+
                 self.MainApplication["MainApplication"].master.wait_window(
                     self.MainApplication["MainApplication"].w.top
                 )
                 time.sleep(1)
-                if self.simulation_launched == False:
+                if self.parallel_man_sim_launched == False:
                     self.MainApplication["MainApplication"].w = popupWindow(
                         self.MainApplication["MainApplication"].master,
                         "CoppeliaSim will now start",
@@ -174,7 +188,7 @@ class Solution:
                     )
 
                     os.startfile(self.parallel_manipulator_abspath)
-                    self.simulation_launched = True
+                    self.parallel_man_sim_launched = True
                     time.sleep(5)
                 self.parallel_manipulator = ManipulatorController()
 
