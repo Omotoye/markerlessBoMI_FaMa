@@ -33,6 +33,10 @@ For example in the case of "planar manipulator":
 - Press the play ![image](https://user-images.githubusercontent.com/72743858/152411034-623de161-0f2d-41fe-839e-fb4128cd6f56.png) button to allows to link coppelia with the script.
 - Execute the calibration and then the practice as in the previous cases (this last step may take some times).
 - Now by moving the head the robot should move accordigly.
+- To have a better control we advice to change the view for a top one clicking in the icon below.
+
+![image](https://user-images.githubusercontent.com/72743858/152435016-14be348f-5a92-4ded-9992-518a74fd1e57.png)
+ 
 
 ## Available systems
 
