@@ -35,7 +35,7 @@ step 4 --> upgrade pip and install all the packages nedded for markerlessBoMI:
 
 ```
     $ pip install --upgrade pip
-    $ pip install git+https://github.com/MoroMatteo/markerlessBoMI_FaMa.git
+    $ pip install git+https://github.com/Omotoye/markerlessBoMI_FaMa
 ```
 
 step 5 --> istall tkinter:
@@ -47,7 +47,7 @@ step 5 --> istall tkinter:
 step 6 --> clone the github repository:
 
 ```
-    $ git clone https://github.com/MoroMatteo/markerlessBoMI_FaMa.git
+    $ git clone https://github.com/Omotoye/markerlessBoMI_FaMa
 ```
 
 step 7 --> cd in the correct folder and run main_reaching.py:
@@ -81,7 +81,7 @@ step 3 --> upgrade pip and install all the packages nedded for markerlessBoMI:
 
 ```
     $ pip install --upgrade pip
-    $ pip install git+https://github.com/MoroMatteo/markerlessBoMI_FaMa.git
+    $ pip install git+https://github.com/Omotoye/markerlessBoMI_FaMa
 ```
 
 step 4 --> istall tkinter:
@@ -93,7 +93,7 @@ step 4 --> istall tkinter:
 step 5 --> clone the github repository:
 
 ```
-    $ git clone https://github.com/MoroMatteo/markerlessBoMI_FaMa.git
+    $ git clone https://github.com/Omotoye/markerlessBoMI_FaMa
 ```
 
 step 6 --> cd in the correct folder and run main_reaching.py:
